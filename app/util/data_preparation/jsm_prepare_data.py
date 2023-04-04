@@ -133,7 +133,7 @@ def __get_agents(jira_client):
         add_users = __generate_users(api=jira_client, num_to_create=users_to_create, prefix_name=prefix_name,
                                      application_keys=application_keys)
         if not add_users:
-            raise Exception(f"ERROR: Jira Service Management could not create agent"
+            raise SystemExit(f"ERROR: Jira Service Management could not create agent"
                             f"There were {len(perf_users)}/{count} retrieved.")
         perf_users.extend(add_users)
     return perf_users
@@ -154,7 +154,7 @@ def __get_customers(jira_client, jsm_client, servicedesks):
             created_agents.append(agent)
             request_types = __get_request_types(jsm_client, servicedesks)
             if not request_types:
-                raise Exception("No request types found for service desk")
+                raise SystemExit("No request types found for service desk")
             random_request_type = random.choice(request_types).split(",")
             service_desk_id = random_request_type[1]
             request_type_id = random_request_type[2]
@@ -181,7 +181,7 @@ def __generate_users(api, num_to_create, application_keys, prefix_name):
     created_agents = []
     while len(created_agents) < num_to_create:
         if errors_count >= ERROR_LIMIT:
-            raise Exception(f'ERROR: Maximum error limit reached {errors_count}/{ERROR_LIMIT}. '
+            raise SystemExit(f'ERROR: Maximum error limit reached {errors_count}/{ERROR_LIMIT}. '
                             f'Please check the errors in bzt.log')
         username = f"{prefix_name}{__generate_random_string(10)}"
         try:
@@ -201,7 +201,7 @@ def __get_service_desk_info(jira_api, jsm_api, service_desk):
 
     all_open_queue_id = [queue['id'] for queue in service_desk_queues if queue['name'] == 'All open']
     if not all_open_queue_id:
-        raise Exception(f'ERROR: Service Desk with id {service_desk} does not have "All open" queue')
+        raise SystemExit(f'ERROR: Service Desk with id {service_desk} does not have "All open" queue')
     all_open_queue_id = ''.join(all_open_queue_id)
     service_desk['total_requests'] = service_desk_requests_count
     service_desk['all_open_queue_id'] = all_open_queue_id
@@ -441,7 +441,7 @@ def __get_issues_by_project_keys(jira_client, jsm_client, project_keys):
                 break
 
     if not perf_organizations_with_users:
-        raise Exception(f'ERROR: There were no organizations found with prefix "{DEFAULT_ORGANIZATION}". '
+        raise SystemExit(f'ERROR: There were no organizations found with prefix "{DEFAULT_ORGANIZATION}". '
                         f'Make sure JSM projects has organizations with prefix "{DEFAULT_ORGANIZATION}". '
                         f'Organizations "{DEFAULT_ORGANIZATION}" should have customers'
                         f' with prefix "{DEFAULT_CUSTOMER_PREFIX}".')
