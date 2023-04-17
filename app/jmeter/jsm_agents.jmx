@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.4.2">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.4.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments">This test plan was created by the BlazeMeter converter v.3.1.23. Please contact support@blazemeter.com for further support.</stringProp>
@@ -10941,7 +10941,7 @@ if ( sleep_time &gt; 0 ) {
               <boolProp name="IfController.useExpression">true</boolProp>
             </IfController>
             <hashTree>
-              <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="jmeter_agent_insight_create_schema:open_field" enabled="true">
+              <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="jmeter_agent_insight_create_schema:open_field" enabled="false">
                 <boolProp name="TransactionController.includeTimers">false</boolProp>
                 <boolProp name="TransactionController.parent">true</boolProp>
               </TransactionController>
@@ -10974,7 +10974,7 @@ if ( sleep_time &gt; 0 ) {
                 </HTTPSamplerProxy>
                 <hashTree/>
               </hashTree>
-              <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="jmeter_agent_insight_create_schema:create_schema" enabled="true">
+              <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="jmeter_agent_insight_create_schema:create_schema" enabled="false">
                 <boolProp name="TransactionController.includeTimers">false</boolProp>
                 <boolProp name="TransactionController.parent">true</boolProp>
               </TransactionController>
@@ -11033,12 +11033,12 @@ if ( sleep_time &gt; 0 ) {
                   <hashTree/>
                 </hashTree>
               </hashTree>
-              <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="jmeter_agent_insight_create_object" enabled="true">
+              <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="jmeter_agent_insight_create_asset" enabled="true">
                 <boolProp name="TransactionController.includeTimers">false</boolProp>
                 <boolProp name="TransactionController.parent">true</boolProp>
               </TransactionController>
               <hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="496/secure/ObjectSchema.jspa?id=" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="496/secure/ObjectSchema.jspa?id=" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="id" elementType="HTTPArgument">
@@ -11085,7 +11085,7 @@ if ( sleep_time &gt; 0 ) {
                   </UniformRandomTimer>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="497/rest/webResources/1.0/resources" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="497/rest/webResources/1.0/resources" enabled="false">
                   <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                     <collectionProp name="Arguments.arguments">
@@ -11129,7 +11129,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="498/rest/webResources/1.0/resources" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="498/rest/webResources/1.0/resources" enabled="false">
                   <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                     <collectionProp name="Arguments.arguments">
@@ -11173,7 +11173,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="499/rest/insight/1.0/global/config/object?objectschemaid=46&amp;_=1648553559435" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="499/rest/insight/1.0/global/config/object?objectschemaid=46&amp;_=1648553559435" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="objectschemaid" elementType="HTTPArgument">
@@ -11233,7 +11233,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="500/rest/webResources/1.0/resources" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="500/rest/webResources/1.0/resources" enabled="false">
                   <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                     <collectionProp name="Arguments.arguments">
@@ -11277,7 +11277,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="501/rest/insight/1.0/objectschema" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="501/rest/insight/1.0/objectschema" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="_" elementType="HTTPArgument">
@@ -11330,7 +11330,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="502/rest/analytics/1.0/publish/bulk" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="502/rest/analytics/1.0/publish/bulk" enabled="false">
                   <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                     <collectionProp name="Arguments.arguments">
@@ -11370,7 +11370,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="503/rest/insight/1.0/objectschema/${schema_id}/jstree" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="503/rest/insight/1.0/objectschema/${schema_id}/jstree" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="objectTypeId" elementType="HTTPArgument">
@@ -11427,7 +11427,7 @@ if ( sleep_time &gt; 0 ) {
                   </RegexExtractor>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="504/rest/insight/1.0/progress/category/insight-reindex/inprogress?_=1648553559437" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="504/rest/insight/1.0/progress/category/insight-reindex/inprogress?_=1648553559437" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="_" elementType="HTTPArgument">
@@ -11480,7 +11480,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="505/rest/insight/1.0/objecttype/${object_type_id}/details" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="505/rest/insight/1.0/objecttype/${object_type_id}/details" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="_" elementType="HTTPArgument">
@@ -11533,7 +11533,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="506/rest/insight/1.0/object/navlist" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="506/rest/insight/1.0/object/navlist" enabled="false">
                   <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                     <collectionProp name="Arguments.arguments">
@@ -11581,7 +11581,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="507/rest/insight/1.0/importsource/ot/${object_type_id}/imports" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="507/rest/insight/1.0/importsource/ot/${object_type_id}/imports" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="_" elementType="HTTPArgument">
@@ -11634,7 +11634,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="508/rest/insight/1.0/objecttype/${object_type_id}/attributes" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="508/rest/insight/1.0/objecttype/${object_type_id}/attributes" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="includeChildren" elementType="HTTPArgument">
@@ -11682,7 +11682,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="509/rest/analytics/1.0/publish/bulk" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="509/rest/analytics/1.0/publish/bulk" enabled="false">
                   <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                     <collectionProp name="Arguments.arguments">
@@ -11722,7 +11722,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="510/rest/insight/1.0/objectschema/${schema_id}/objecttypes" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="510/rest/insight/1.0/objectschema/${schema_id}/objecttypes" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="excludeAbstract" elementType="HTTPArgument">
@@ -11774,7 +11774,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="511/rest/insight/1.0/global/config/objectschema/${schema_id}/property" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="511/rest/insight/1.0/global/config/objectschema/${schema_id}/property" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="_" elementType="HTTPArgument">
@@ -11819,7 +11819,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="512/rest/insight/1.0/objecttype/${object_type_id}/attributes" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="512/rest/insight/1.0/objecttype/${object_type_id}/attributes" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="onlyValueEditable" elementType="HTTPArgument">
@@ -11880,13 +11880,24 @@ if ( sleep_time &gt; 0 ) {
                   </RegexExtractor>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="513/rest/insight/1.0/object/create" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="513/rest/assets/1.0/object/create" enabled="true">
                   <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="" elementType="HTTPArgument">
                         <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                        <stringProp name="Argument.value">{&quot;objectTypeId&quot;: ${object_type_id} ,&quot;attributes&quot;: [{&quot;objectTypeAttributeId&quot;: ${attribute_id},&quot;objectAttributeValues&quot;: [{&quot;value&quot;: &quot;Hello&quot;}]}]}</stringProp>
+                        <stringProp name="Argument.value">{&#xd;
+	&quot;attributes&quot;:[&#xd;
+		{&quot;objectTypeAttributeId&quot;:417,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;1.2.3.4&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:418,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;attribute_123_23&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:419,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;attribute 12312312&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:420,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;hasdhasda&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:421,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;aws dayaya&quot;}]}&#xd;
+		],&#xd;
+	&quot;objectTypeId&quot;:48,&#xd;
+	&quot;avatarUUID&quot;:&quot;&quot;,&#xd;
+	&quot;hasAvatar&quot;:false&#xd;
+}</stringProp>
                         <stringProp name="Argument.metadata">=</stringProp>
                       </elementProp>
                     </collectionProp>
@@ -11895,7 +11906,7 @@ if ( sleep_time &gt; 0 ) {
                   <stringProp name="HTTPSampler.port"></stringProp>
                   <stringProp name="HTTPSampler.protocol"></stringProp>
                   <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-                  <stringProp name="HTTPSampler.path">${application.postfix}/rest/insight/1.0/object/create</stringProp>
+                  <stringProp name="HTTPSampler.path">${application.postfix}/rest/assets/1.0/object/create</stringProp>
                   <stringProp name="HTTPSampler.method">POST</stringProp>
                   <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
                   <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -11928,7 +11939,141 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="514/rest/insight/1.0/object/navlist" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="514/rest/assets/1.0/object/create" enabled="true">
+                  <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+                  <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                    <collectionProp name="Arguments.arguments">
+                      <elementProp name="" elementType="HTTPArgument">
+                        <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                        <stringProp name="Argument.value">{&#xd;
+	&quot;attributes&quot;:[&#xd;
+		{&quot;objectTypeAttributeId&quot;:715,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;Awesome TV Antena&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:716,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;tv antena&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:719,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;1.0&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:720,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;1.0-m12&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:721,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;linux-5.0&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:722,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;SP1&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:723,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;SP2&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:724,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;license_number&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:725,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;license active&quot;}]},&#xd;
+		{&quot;objectTypeAttributeId&quot;:726,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;arm linux&quot;}]}&#xd;
+		],&#xd;
+	&quot;objectTypeId&quot;:87,&#xd;
+	&quot;avatarUUID&quot;:&quot;&quot;,&#xd;
+	&quot;hasAvatar&quot;:false&#xd;
+}</stringProp>
+                        <stringProp name="Argument.metadata">=</stringProp>
+                      </elementProp>
+                    </collectionProp>
+                  </elementProp>
+                  <stringProp name="HTTPSampler.domain"></stringProp>
+                  <stringProp name="HTTPSampler.port"></stringProp>
+                  <stringProp name="HTTPSampler.protocol"></stringProp>
+                  <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                  <stringProp name="HTTPSampler.path">${application.postfix}/rest/assets/1.0/object/create</stringProp>
+                  <stringProp name="HTTPSampler.method">POST</stringProp>
+                  <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+                  <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                  <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                  <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                  <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+                  <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                  <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                  <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header manager" enabled="true">
+                    <collectionProp name="HeaderManager.headers">
+                      <elementProp name="Accept" elementType="Header">
+                        <stringProp name="Header.name">Accept</stringProp>
+                        <stringProp name="Header.value">application/json, text/javascript, */*; q=0.01</stringProp>
+                      </elementProp>
+                      <elementProp name="X-Requested-With" elementType="Header">
+                        <stringProp name="Header.name">X-Requested-With</stringProp>
+                        <stringProp name="Header.value">XMLHttpRequest</stringProp>
+                      </elementProp>
+                      <elementProp name="X-Atlassian-Token" elementType="Header">
+                        <stringProp name="Header.name">X-Atlassian-Token</stringProp>
+                        <stringProp name="Header.value">no-check</stringProp>
+                      </elementProp>
+                      <elementProp name="Content-Type" elementType="Header">
+                        <stringProp name="Header.name">Content-Type</stringProp>
+                        <stringProp name="Header.value">application/json</stringProp>
+                      </elementProp>
+                    </collectionProp>
+                  </HeaderManager>
+                  <hashTree/>
+                </hashTree>
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="515/rest/assets/1.0/object/create" enabled="true">
+                  <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+                  <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                    <collectionProp name="Arguments.arguments">
+                      <elementProp name="" elementType="HTTPArgument">
+                        <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                        <stringProp name="Argument.value">{&#xd;
+	&quot;attributes&quot;:[&#xd;
+	{&quot;objectTypeAttributeId&quot;:1513,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;connected device name&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1580,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;1234321&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1581,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:null}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1582,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:null}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1583,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;asdasdasd&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1584,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;tv company&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1585,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;yes&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1586,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;192.168.0.1&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1587,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;16.0.01&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1588,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;atributeasDAS&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1589,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;lugotech asd&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1590,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;1024&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1591,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;768&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1592,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;666&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1593,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;jpgh&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1594,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;cool computer&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1595,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;1123&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1596,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;11234455&quot;}]}&#xd;
+	],&#xd;
+	&quot;objectTypeId&quot;:183,&quot;avatarUUID&quot;:&quot;&quot;,&quot;hasAvatar&quot;:false&#xd;
+}</stringProp>
+                        <stringProp name="Argument.metadata">=</stringProp>
+                      </elementProp>
+                    </collectionProp>
+                  </elementProp>
+                  <stringProp name="HTTPSampler.domain"></stringProp>
+                  <stringProp name="HTTPSampler.port"></stringProp>
+                  <stringProp name="HTTPSampler.protocol"></stringProp>
+                  <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                  <stringProp name="HTTPSampler.path">${application.postfix}/rest/assets/1.0/object/create</stringProp>
+                  <stringProp name="HTTPSampler.method">POST</stringProp>
+                  <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+                  <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                  <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                  <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                  <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+                  <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                  <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                  <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header manager" enabled="true">
+                    <collectionProp name="HeaderManager.headers">
+                      <elementProp name="Accept" elementType="Header">
+                        <stringProp name="Header.name">Accept</stringProp>
+                        <stringProp name="Header.value">application/json, text/javascript, */*; q=0.01</stringProp>
+                      </elementProp>
+                      <elementProp name="X-Requested-With" elementType="Header">
+                        <stringProp name="Header.name">X-Requested-With</stringProp>
+                        <stringProp name="Header.value">XMLHttpRequest</stringProp>
+                      </elementProp>
+                      <elementProp name="X-Atlassian-Token" elementType="Header">
+                        <stringProp name="Header.name">X-Atlassian-Token</stringProp>
+                        <stringProp name="Header.value">no-check</stringProp>
+                      </elementProp>
+                      <elementProp name="Content-Type" elementType="Header">
+                        <stringProp name="Header.name">Content-Type</stringProp>
+                        <stringProp name="Header.value">application/json</stringProp>
+                      </elementProp>
+                    </collectionProp>
+                  </HeaderManager>
+                  <hashTree/>
+                </hashTree>
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="514/rest/insight/1.0/object/navlist" enabled="false">
                   <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                     <collectionProp name="Arguments.arguments">
@@ -11976,7 +12121,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="515/rest/insight/1.0/objecttype/${object_type_id}/details" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="515/rest/insight/1.0/objecttype/${object_type_id}/details" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="_" elementType="HTTPArgument">
@@ -12029,7 +12174,7 @@ if ( sleep_time &gt; 0 ) {
                   </HeaderManager>
                   <hashTree/>
                 </hashTree>
-                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="516/rest/insight/1.0/objecttype/${object_type_id}/attributes" enabled="true">
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="516/rest/insight/1.0/objecttype/${object_type_id}/attributes" enabled="false">
                   <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                     <collectionProp name="Arguments.arguments">
                       <elementProp name="includeChildren" elementType="HTTPArgument">
@@ -12078,7 +12223,7 @@ if ( sleep_time &gt; 0 ) {
                   <hashTree/>
                 </hashTree>
               </hashTree>
-              <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="jmeter_agent_insight_delete_schema" enabled="true">
+              <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="jmeter_agent_insight_delete_schema" enabled="false">
                 <boolProp name="TransactionController.includeTimers">false</boolProp>
                 <boolProp name="TransactionController.parent">true</boolProp>
               </TransactionController>
