@@ -14,33 +14,33 @@ settings:
     admin_password: admin
     load_executor: jmeter           # jmeter and locust are supported. jmeter by default.
     concurrency_agents: 50          # number of concurrent virtual agent users for jmeter or locust scenario
-    concurrency_customers: 150      # number of concurrent virtual customer users for jmeter or locust scenario
+    concurrency_customers: 200      # number of concurrent virtual customer users for jmeter or locust scenario
     test_duration: 45m
     ramp-up: 3m                     # time to spin all concurrent users
     total_actions_per_hour_agents: 5000
-    total_actions_per_hour_customers: 15000
-    insight: False                  # Set True to enable Insight specific tests
+    total_actions_per_hour_customers: 20000
+    insight: True                  # Set True to enable Insight specific tests
     WEBDRIVER_VISIBLE: False
     JMETER_VERSION: 5.4.3
     LANGUAGE: en_US.utf8
     allow_analytics: Yes            # Allow sending basic run analytics to Atlassian. These analytics help us to understand how the tool is being used and help us to continue to invest in this tooling. For more details please see our README.
     # Action percentage for Jmeter and Locust load executors
-    agent_browse_projects: 10
-    agent_view_request: 24
-    agent_add_comment: 26
-    agent_view_queues_small: 11
-    agent_view_queues_medium: 9
-    agent_view_report_workload_small: 4
-    agent_view_report_workload_medium: 3
-    agent_view_report_created_vs_resolved_small: 5
-    agent_view_report_created_vs_resolved_medium: 2
-    agent_view_customers: 6
+    agent_browse_projects: 0
+    agent_view_request: 0
+    agent_add_comment: 0
+    agent_view_queues_small: 0
+    agent_view_queues_medium: 0
+    agent_view_report_workload_small: 0
+    agent_view_report_workload_medium: 0
+    agent_view_report_created_vs_resolved_small: 0
+    agent_view_report_created_vs_resolved_medium: 0
+    agent_view_customers: 0
     agent_standalone_extension: 0
-    agent_insight_main_page: 10
-    agent_insight_create_schema: 5
-    agent_insight_view_queue_insight_column: 4
-    agent_insight_view_issue_with_objects: 8
-    agent_insight_search_object_by_iql: 2
+    agent_insight_main_page: 0
+    agent_insight_create_schema: 100
+    agent_insight_view_queue_insight_column: 0
+    agent_insight_view_issue_with_objects: 0
+    agent_insight_search_object_by_iql: 0
 
     customer_view_portal: 11
     customer_view_requests: 25
