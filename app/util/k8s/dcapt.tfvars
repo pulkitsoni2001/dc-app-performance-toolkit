@@ -314,10 +314,10 @@ bitbucket_admin_display_name  = "admin"
 bitbucket_admin_email_address = "admin@example.com"
 
 # Bitbucket instance resource configuration
-bitbucket_cpu      = "4"
-bitbucket_mem      = "16Gi"
-bitbucket_min_heap = "7168m"
-bitbucket_max_heap = "7168m"
+bitbucket_cpu      = "6"
+bitbucket_mem      = "24Gi"
+bitbucket_min_heap = "12288m"
+bitbucket_max_heap = "12288m"
 
 # Storage
 bitbucket_local_home_size  = "1000Gi"
