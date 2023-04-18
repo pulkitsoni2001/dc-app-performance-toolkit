@@ -11984,7 +11984,9 @@ if ( sleep_time &gt; 0 ) {
 	{&quot;objectTypeAttributeId&quot;:1593,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;jpgh&quot;}]},&#xd;
 	{&quot;objectTypeAttributeId&quot;:1594,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;cool computer&quot;}]},&#xd;
 	{&quot;objectTypeAttributeId&quot;:1595,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;1123&quot;}]},&#xd;
-	{&quot;objectTypeAttributeId&quot;:1596,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;11234455&quot;}]}&#xd;
+	{&quot;objectTypeAttributeId&quot;:1596,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;11234455&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1869,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;crazy hash value&quot;}]},&#xd;
+	{&quot;objectTypeAttributeId&quot;:1870,&quot;objectAttributeValues&quot;:[{&quot;value&quot;:&quot;it doesn&apos;t have any perks&quot;}]}&#xd;
 	],&#xd;
 	&quot;objectTypeId&quot;:183,&quot;avatarUUID&quot;:&quot;&quot;,&quot;hasAvatar&quot;:false&#xd;
 }</stringProp>
@@ -14153,7 +14155,7 @@ if ( sleep_time &gt; 0 ) {
           <hashTree/>
         </hashTree>
       </hashTree>
-      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="false">
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
