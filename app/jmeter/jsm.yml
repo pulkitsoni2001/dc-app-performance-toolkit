@@ -38,8 +38,8 @@ settings:
     agent_standalone_extension: 0
     agent_insight_main_page: 0
     agent_insight_create_schema_5: 33
-    agent_insight_create_schema_10: 34
-    agent_insight_create_schema_20: 35
+    agent_insight_create_schema_10: 33
+    agent_insight_create_schema_20: 33
     agent_insight_view_queue_insight_column: 0
     agent_insight_view_issue_with_objects: 0
     agent_insight_search_object_by_iql: 0
