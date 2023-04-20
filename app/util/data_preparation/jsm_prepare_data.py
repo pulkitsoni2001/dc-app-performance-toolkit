@@ -59,8 +59,7 @@ def __calculate_issues_per_project(projects_count):
         calculated_issues_percentage = PROJECTS_ISSUES_PERC
     else:
         percent_for_other_projects = 0
-        # TODO resolve Unexpected types warning from pycharm
-        calculated_issues_percentage = dict(list(PROJECTS_ISSUES_PERC.items())[:projects_count])
+        calculated_issues_percentage = {(list(PROJECTS_ISSUES_PERC.items())[:projects_count])}
 
     for key, value in calculated_issues_percentage.items():
         calculated_issues_per_project_count[key] = value * TOTAL_ISSUES_TO_RETRIEVE // 100 or 1
@@ -276,19 +275,11 @@ def __get_service_desk_requests(jira_api, issues_distribution_id, service_desk):
 
 @print_timing('Preparing customers requests')
 def __get_requests(jira_api, service_desks, requests_without_distribution):
-    # TODO refactor this function (var names, simplify logic)
-    service_desks_issues = []
-    for service_desk in service_desks:
-        service_desk_dict = dict()
-        service_desk_dict['serviceDeskId'] = service_desk['id']
-        service_desk_dict['projectId'] = service_desk['projectId']
-        service_desk_dict['projectKey'] = service_desk['projectKey']
-        service_desks_issues.append(service_desk_dict)
+    service_desks_issues = [{'serviceDeskId': service_desk['id'], 'projectId': service_desk['projectId'],
+                             'projectKey': service_desk['projectKey']} for service_desk in service_desks]
 
-    issues_distribution_perc = __calculate_issues_per_project(len(service_desks))
-    issues_distribution_id = {}
-    for key, value in issues_distribution_perc.items():
-        issues_distribution_id[service_desks_issues[key - 1]['projectKey']] = value
+    issues_distribution_id = {service_desks_issues[key - 1]['projectKey']: value for key, value in
+                              __calculate_issues_per_project(len(service_desks)).items()}
 
     print(f'Start retrieving issues by distribution per project: {issues_distribution_id}')
     distribution_success = True
@@ -314,16 +305,15 @@ def __get_requests(jira_api, service_desks, requests_without_distribution):
 
     print(f'Force retrieving {TOTAL_ISSUES_TO_RETRIEVE} issues from Service Desk projects')
     issues_list = []
-    for request in requests_without_distribution:
-        for service_desk in service_desks_issues:
-            if service_desk['projectKey'] in request['key']:
-                issue_str = f'{request["id"]},' \
-                            f'{request["key"]},' \
-                            f'{service_desk["serviceDeskId"]},' \
-                            f'{service_desk["projectId"]},' \
-                            f'{service_desk["projectKey"]}'
+    service_desk_dict = {issue['projectKey']: issue for issue in service_desks_issues}
 
-                issues_list.append(issue_str)
+    for request in requests_without_distribution:
+        project_key = next((key for key in service_desk_dict.keys() if key in request['key']), None)
+        if project_key:
+            service_desk = service_desk_dict[project_key]
+            issue_str = f'{request["id"]},{request["key"]},{service_desk["serviceDeskId"]},' \
+                        f'{service_desk["projectId"]},{project_key} '
+            issues_list.append(issue_str)
     if not issues_list:
         raise Exception("ERROR: Jira Service Management instance does not have any requests.")
     print(f"Force retrieved {len(issues_list)} issues.")
