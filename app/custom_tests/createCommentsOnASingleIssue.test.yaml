@@ -1,0 +1,68 @@
+#
+# Test case: Concurrent users creating comments for a particular issue
+#
+included-configs:
+- jsm.yml
+
+settings:
+  env:
+    ITERATIONS: 10
+    USER_NUMBER: 10
+    CONCURRENCY: ${concurrency_agents}
+    RAMP-UP: ${ramp-up}
+    BASE_URL: ${application_protocol}://${application_hostname}
+    DATASET: jsm.perf.tickets_to_comment.csv
+    AGENT_PASSWORD: agent
+#    SINGLE_ISSUE_KEY: "ONBOARD-50"
+#    SINGLE_ISSUE_ID: 11447
+#    AGENT_USERNAME: "agent150"
+
+execution:
+- scenario: create_comment_for_single_issue
+  concurrency: ${CONCURRENCY}
+  ramp-up: ${RAMP-UP}
+  iterations: ${ITERATIONS}
+
+#Configure scenario for requests details
+scenarios:
+  create_comment_for_single_issue:
+    think-time: 1s
+    data-sources:
+      - path: ${DATASET}
+        delimiter: ','
+        loop: true
+        random-order: false
+    headers:
+      Content-type: application/json
+      Connection: keep-alive
+    authorization:
+      url: ${BASE_URL}
+      name: ${AGENT_USERNAME}
+      password: ${AGENT_PASSWORD}
+      mechanism: BASIC
+    requests:
+      - label: create_private_comment_for_single_issue
+        url: ${BASE_URL}/rest/api/2/issue/${SINGLE_ISSUE_ID}/comment
+        method: POST
+        body:
+          {
+            "body": "Hello there, spamming a single issue with comments. Now here's some random things: ${__RandomString(20,ABCDEFGHIJKLMNOPQRSTUVXZ,)}",
+            "public": "false"
+          }
+      - label: create_public_comment_for_single_issue
+        url: ${BASE_URL}/rest/api/2/issue/${SINGLE_ISSUE_ID}/comment
+        method: POST
+        body:
+          {
+            "body": "Same deal, but public: ${__RandomString(20,ABCDEFGHIJKLMNOPQRSTUVXZ,)}",
+            "public": "true"
+          }
+
+#Configure pass/fail criteria specific for the scenario
+reporting:
+- module: passfail # this is to enable passfail module
+  criteria:
+    - avg-rt of create_private_comment_for_single_issue>1.5s for 10s, continue as failed
+    - failures of create_private_comment_for_single_issue>0%
+    - avg-rt of create_public_comment_for_single_issue>1.5s for 10s, continue as failed
+    - failures of create_public_comment_for_single_issue>0%
