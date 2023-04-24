@@ -62,9 +62,9 @@ services:
 #      - python util/data_preparation/jsm_prepare_data.py
     shutdown:
       - python util/post_run/jmeter_post_check.py
-      - python util/jtl_convertor/jtls-to-csv.py kpi*.jtl selenium.jtl
+      - python util/jtl_convertor/jtls-to-csv.py kpi*.jtl
     post-process:
-#      - python util/analytics/analytics.py jsm
+      - python util/analytics/analytics.py jsm
       - python util/post_run/cleanup_results_dir.py
 #  - module: pip-install
 #    packages:
