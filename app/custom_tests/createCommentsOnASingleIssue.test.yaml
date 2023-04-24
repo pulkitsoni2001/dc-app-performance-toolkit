@@ -7,7 +7,7 @@ included-configs:
 settings:
   env:
     ITERATIONS: 10
-    USER_NUMBER: 10
+    USER_NUMBER: ${concurrency_users}
     CONCURRENCY: ${concurrency_agents}
     RAMP-UP: ${ramp-up}
     BASE_URL: ${application_protocol}://${application_hostname}
