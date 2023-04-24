@@ -6,7 +6,7 @@ included-configs:
 
 settings:
   env:
-    ITERATIONS: 10
+    ITERATIONS: ${iterations}
     USER_NUMBER: ${concurrency_users}
     CONCURRENCY: ${concurrency_agents}
     RAMP-UP: ${ramp-up}
