@@ -55,15 +55,15 @@ settings:
     custom_dataset_query: ""        # Write JQL query to add JQL output to the app/datasets/jsm/custom-issues.csv, e.g. "summary ~ 'AppRequests*'"
 services:
   - module: shellexec
-#    prepare:
-#      - python util/pre_run/environment_checker.py
-#      - python util/pre_run/check_for_updates.py
+    prepare:
+      - python util/pre_run/environment_checker.py
+      - python util/pre_run/check_for_updates.py
 #      - python util/data_preparation/jsm_prepare_data.py
     shutdown:
       - python util/post_run/jmeter_post_check.py
       - python util/jtl_convertor/jtls-to-csv.py kpi*.jtl selenium.jtl
     post-process:
-      - python util/analytics/analytics.py jsm
+#      - python util/analytics/analytics.py jsm
       - python util/post_run/cleanup_results_dir.py
 #  - module: pip-install
 #    packages:
