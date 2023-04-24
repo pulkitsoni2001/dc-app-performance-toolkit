@@ -5,21 +5,21 @@ settings:
   verbose: false
   check-updates: false    # disable bzt check for updates
   env:
-    application_hostname: url.com
+    application_hostname: instenv-89183-m3vs.instenv.internal.atlassian.com
     application_protocol: https      # http or https
     application_port: 443            # 80, 443, 8080, 2990, etc
     secure: True                    # Set False to allow insecure connections, e.g. when using self-signed SSL certificate
     application_postfix:            # e.g. /jira for TerraForm deployment url like `http://a1234-54321.us-east-2.elb.amazonaws.com/jira`. Leave this value blank for url without postfix.
     admin_login: admin
-    admin_password: admin
+    admin_password: 5OcGGJNUUP8bsMEdU_mZAuX3
     iterations: 10
     load_executor: jmeter           # jmeter and locust are supported. jmeter by default.
     concurrency_agents: 5          # number of concurrent virtual agent users for jmeter or locust scenario
     concurrency_customers: 10      # number of concurrent virtual customer users for jmeter or locust scenario
-    test_duration: 45m
+    test_duration: 0s
     ramp-up: 10s                     # time to spin all concurrent users
-    total_actions_per_hour_agents: 5000
-    total_actions_per_hour_customers: 15000
+    total_actions_per_hour_agents: 0
+    total_actions_per_hour_customers: 0
     insight: False                  # Set True to enable Insight specific tests
     WEBDRIVER_VISIBLE: False
     JMETER_VERSION: 5.4.3
