@@ -11,7 +11,7 @@ settings:
     CONCURRENCY: ${concurrency_agents}
     RAMP-UP: ${ramp-up}
     BASE_URL: ${application_protocol}://${application_hostname}
-    DATASET: jsm.perf.tickets_to_comment.csv
+    DATASET: jsm_tickets_to_comment_our_dataset.csv
     AGENT_PASSWORD: agent
 #    SINGLE_ISSUE_KEY: "ONBOARD-50"
 #    SINGLE_ISSUE_ID: 11447
