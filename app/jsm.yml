@@ -17,7 +17,7 @@ settings:
     concurrency_agents: 5          # number of concurrent virtual agent users for jmeter or locust scenario
     concurrency_customers: 10      # number of concurrent virtual customer users for jmeter or locust scenario
     test_duration: 0s
-    ramp-up: 10s                     # time to spin all concurrent users
+    ramp-up: 0                     # time to spin all concurrent users
     total_actions_per_hour_agents: 100
     total_actions_per_hour_customers: 100
     insight: False                  # Set True to enable Insight specific tests

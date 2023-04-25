@@ -7,19 +7,18 @@ included-configs:
 settings:
   env:
     ITERATIONS: ${iterations}
-    USER_NUMBER: ${concurrency_users}
-    CONCURRENCY: ${concurrency_agents}
+    USER_NUMBER: 10
     RAMP-UP: ${ramp-up}
     BASE_URL: ${application_protocol}://${application_hostname}
-    DATASET: jsm_tickets_to_comment_our_dataset.csv
-    AGENT_PASSWORD: password
+    DATASET: jsm.perf.tickets_to_comment.csv
+    AGENT_PASSWORD: agent
 #    SINGLE_ISSUE_KEY: "ONBOARD-50"
 #    SINGLE_ISSUE_ID: 11447
 #    AGENT_USERNAME: "agent150"
 
 execution:
 - scenario: create_comment_for_single_issue
-  concurrency: ${CONCURRENCY}
+  concurrency: ${USER_NUMBER}
   ramp-up: ${RAMP-UP}
   iterations: ${ITERATIONS}
 
