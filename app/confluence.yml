@@ -25,14 +25,15 @@ settings:
     extended_metrics: False
     view_page: 35
     view_dashboard: 9
-    view_blog: 13
+    view_blog: 11
     search_cql: 10
     create_blog: 4
     create_and_edit_page: 8
     comment_page: 7
     view_attachment: 5
     upload_attachment: 6
-    like_page: 3
+    upload_emoticon: 3
+    like_page: 2
     standalone_extension: 0 # By default disabled
     # Custom dataset section.
     custom_dataset_query:           # Write CQL query to add CQL output to the app/datasets/confluence/custom_pages.csv, e.g. "title ~ 'AppPage*'"
@@ -84,6 +85,7 @@ scenarios:
       perc_comment_page: ${comment_page}
       perc_view_attachment: ${view_attachment}
       perc_upload_attachment: ${upload_attachment}
+      perc_upload_emoticon: ${upload_emoticon}
       perc_like_page: ${like_page}
       perc_standalone_extension: ${standalone_extension}
 modules:
