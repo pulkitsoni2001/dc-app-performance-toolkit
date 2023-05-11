@@ -33,6 +33,11 @@
             <stringProp name="Argument.value">${__P(application_postfix,)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="is-able-upload-custom-emoji" elementType="Argument">
+            <stringProp name="Argument.name">is-able-upload-custom-emoji</stringProp>
+            <stringProp name="Argument.value">true</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
@@ -191,6 +196,11 @@
             <elementProp name="perc_create_blog" elementType="Argument">
               <stringProp name="Argument.name">perc_create_blog</stringProp>
               <stringProp name="Argument.value">${__P(perc_create_blog, 0)}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="perc_upload_emoticon" elementType="Argument">
+              <stringProp name="Argument.name">perc_upload_emoticon</stringProp>
+              <stringProp name="Argument.value">${__P(perc_upload_emoticon,0)}</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
           </collectionProp>
@@ -432,16 +442,16 @@
             <stringProp name="variableNames">file_path,file_type,file_name</stringProp>
           </CSVDataSet>
           <hashTree/>
-          <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="emoji upload" enabled="true">
-            <stringProp name="filename">datasets/confluence/static-content/emojis_upload.csv</stringProp>
-            <stringProp name="fileEncoding"></stringProp>
-            <stringProp name="variableNames">emoji_file_path,emoji_file_type,emoji_file_name,emoji_shortcut</stringProp>
-            <boolProp name="ignoreFirstLine">false</boolProp>
+          <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="emojis upload" enabled="true">
             <stringProp name="delimiter">,</stringProp>
+            <stringProp name="fileEncoding"></stringProp>
+            <stringProp name="filename">datasets/confluence/static-content/emojis_upload.csv</stringProp>
+            <boolProp name="ignoreFirstLine">false</boolProp>
             <boolProp name="quotedData">false</boolProp>
             <boolProp name="recycle">true</boolProp>
-            <boolProp name="stopThread">false</boolProp>
             <stringProp name="shareMode">shareMode.all</stringProp>
+            <boolProp name="stopThread">false</boolProp>
+            <stringProp name="variableNames">emoji_file_path,emoji_file_type,emoji_file_name</stringProp>
           </CSVDataSet>
           <hashTree/>
           <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="view_page" enabled="true">
@@ -933,7 +943,7 @@ if ( sleep_time &gt; 0 ) {
               <hashTree/>
             </hashTree>
           </hashTree>
-          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="view_dashboard" enabled="true">
+          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="view_dashboard" enabled="false">
             <intProp name="ThroughputController.style">1</intProp>
             <boolProp name="ThroughputController.perThread">false</boolProp>
             <intProp name="ThroughputController.maxThroughput">1</intProp>
@@ -1112,7 +1122,7 @@ if ( sleep_time &gt; 0 ) {
               <hashTree/>
             </hashTree>
           </hashTree>
-          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="view_blog" enabled="true">
+          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="view_blog" enabled="false">
             <intProp name="ThroughputController.style">1</intProp>
             <boolProp name="ThroughputController.perThread">false</boolProp>
             <intProp name="ThroughputController.maxThroughput">1</intProp>
@@ -1419,7 +1429,7 @@ if ( sleep_time &gt; 0 ) {
               <hashTree/>
             </hashTree>
           </hashTree>
-          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="search_cql" enabled="true">
+          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="search_cql" enabled="false">
             <intProp name="ThroughputController.style">1</intProp>
             <boolProp name="ThroughputController.perThread">false</boolProp>
             <intProp name="ThroughputController.maxThroughput">1</intProp>
@@ -1620,7 +1630,7 @@ if ( sleep_time &gt; 0 ) {
               <hashTree/>
             </hashTree>
           </hashTree>
-          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="create_blog" enabled="true">
+          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="create_blog" enabled="false">
             <intProp name="ThroughputController.style">1</intProp>
             <boolProp name="ThroughputController.perThread">false</boolProp>
             <intProp name="ThroughputController.maxThroughput">1</intProp>
@@ -3839,7 +3849,7 @@ if ( sleep_time &gt; 0 ) {
               <hashTree/>
             </hashTree>
           </hashTree>
-          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="comment_page" enabled="true">
+          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="comment_page" enabled="false">
             <intProp name="ThroughputController.style">1</intProp>
             <boolProp name="ThroughputController.perThread">false</boolProp>
             <intProp name="ThroughputController.maxThroughput">1</intProp>
@@ -3981,7 +3991,7 @@ if ( sleep_time &gt; 0 ) {
               <hashTree/>
             </hashTree>
           </hashTree>
-          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="view_attachment" enabled="true">
+          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="view_attachment" enabled="false">
             <intProp name="ThroughputController.style">1</intProp>
             <boolProp name="ThroughputController.perThread">false</boolProp>
             <intProp name="ThroughputController.maxThroughput">1</intProp>
@@ -4491,7 +4501,7 @@ if ( sleep_time &gt; 0 ) {
               <hashTree/>
             </hashTree>
           </hashTree>
-          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="upload_attachment" enabled="true">
+          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="upload_attachment" enabled="false">
             <intProp name="ThroughputController.style">1</intProp>
             <boolProp name="ThroughputController.perThread">false</boolProp>
             <intProp name="ThroughputController.maxThroughput">1</intProp>
@@ -4914,7 +4924,7 @@ if ( sleep_time &gt; 0 ) {
               <hashTree/>
             </hashTree>
           </hashTree>
-          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="like_page" enabled="true">
+          <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="like_page" enabled="false">
             <intProp name="ThroughputController.style">1</intProp>
             <boolProp name="ThroughputController.perThread">false</boolProp>
             <intProp name="ThroughputController.maxThroughput">1</intProp>
@@ -5172,18 +5182,10 @@ if ( sleep_time &gt; 0 ) {
               </JSR223PreProcessor>
               <hashTree/>
             </hashTree>
-            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSR223 PreProcessor" enabled="true">
-              <stringProp name="scriptLanguage">groovy</stringProp>
-              <stringProp name="parameters"></stringProp>
-              <stringProp name="filename"></stringProp>
-              <stringProp name="cacheKey">true</stringProp>
-              <stringProp name="script">vars.put(&quot;is-able-upload-custom-emojo&quot;, &quot;true&quot;);</stringProp>
-            </JSR223PreProcessor>
-            <hashTree/>
             <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If uploadable" enabled="true">
               <stringProp name="TestPlan.comments">Page has to be viewed at least once to extract token
 </stringProp>
-              <stringProp name="IfController.condition">${__groovy(vars.get(&quot;is-able-upload-custom-emojo&quot;) == true}</stringProp>
+              <stringProp name="IfController.condition">${__groovy(vars.get(&quot;is-able-upload-custom-emoji&quot;) == &quot;true&quot; &amp;&amp; vars.get(&quot;x_atl_token_view_issue&quot;) != null)}</stringProp>
               <boolProp name="IfController.evaluateAll">false</boolProp>
               <boolProp name="IfController.useExpression">true</boolProp>
             </IfController>
@@ -5194,30 +5196,26 @@ if ( sleep_time &gt; 0 ) {
               </TransactionController>
               <hashTree>
                 <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="500 rest/emoticons/1.0/custom" enabled="true">
-                  <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
-                    <collectionProp name="HTTPFileArgs.files">
-                      <elementProp name="${emoji_file_path}" elementType="HTTPFileArg">
-                        <stringProp name="File.path">${emoji_file_path}</stringProp>
-                        <stringProp name="File.paramname">file</stringProp>
-                        <stringProp name="File.mimetype">${emoji_file_name}</stringProp>
-                      </elementProp>
-                    </collectionProp>
-                  </elementProp>
-                  <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
+                  <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+                  <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                     <collectionProp name="Arguments.arguments">
-                      <elementProp name="shortcut" elementType="HTTPArgument">
+                      <elementProp name="" elementType="HTTPArgument">
                         <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                        <stringProp name="Argument.value">${emoji_shortcut}</stringProp>
+                        <stringProp name="Argument.value">--emoji&#xd;
+Content-Disposition: form-data; name=&quot;shortcut&quot;&#xd;
+&#xd;
+${emoji_shortcut}&#xd;
+--emoji&#xd;
+Content-Disposition: form-data; name=&quot;name&quot;&#xd;
+&#xd;
+${emoji_shortcut}&#xd;
+--emoji&#xd;
+Content-Disposition: form-data; name=&quot;file&quot;; filename=&quot;${emoji_file_name}&quot;&#xd;
+Content-Type: ${emoji_file_type}&#xd;
+&#xd;
+${emoji_binary_data}&#xd;
+--emoji--</stringProp>
                         <stringProp name="Argument.metadata">=</stringProp>
-                        <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                        <stringProp name="Argument.name">shortcut</stringProp>
-                      </elementProp>
-                      <elementProp name="name" elementType="HTTPArgument">
-                        <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                        <stringProp name="Argument.value">${emoji_file_name}</stringProp>
-                        <stringProp name="Argument.metadata">=</stringProp>
-                        <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                        <stringProp name="Argument.name">name</stringProp>
                       </elementProp>
                     </collectionProp>
                   </elementProp>
@@ -5230,7 +5228,7 @@ if ( sleep_time &gt; 0 ) {
                   <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
                   <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-                  <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
+                  <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                   <stringProp name="HTTPSampler.connect_timeout"></stringProp>
                   <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -5244,7 +5242,7 @@ if ( sleep_time &gt; 0 ) {
                       </elementProp>
                       <elementProp name="" elementType="Header">
                         <stringProp name="Header.name">Content-Type</stringProp>
-                        <stringProp name="Header.value">multipart/form-data; boundary=customEmoji</stringProp>
+                        <stringProp name="Header.value">multipart/form-data; boundary=emoji</stringProp>
                       </elementProp>
                       <elementProp name="" elementType="Header">
                         <stringProp name="Header.name">Accept-Encoding</stringProp>
@@ -5271,12 +5269,56 @@ if ( sleep_time &gt; 0 ) {
                     <intProp name="Assertion.test_type">16</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Generate Shortcut " enabled="true">
+                    <stringProp name="scriptLanguage">groovy</stringProp>
+                    <stringProp name="parameters"></stringProp>
+                    <stringProp name="filename"></stringProp>
+                    <stringProp name="cacheKey">true</stringProp>
+                    <stringProp name="script">import org.apache.commons.lang.RandomStringUtils;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+int randomStringLength = 10;
+String charset = ((&apos;a&apos;..&apos;z&apos;) + (&apos;A&apos;..&apos;Z&apos;) + (&apos;0&apos;..&apos;9&apos;)).join();
+String randomString = RandomStringUtils.random(randomStringLength, charset.toCharArray());
+
+log.info(&quot;Generate shortcut --&gt; &quot; + randomString);
+vars.put(&quot;emoji_shortcut&quot;, randomString);
+
+String emojiFilePath = vars.get(&quot;emoji_file_path&quot;);
+File emojiFile = new File(emojiFilePath);
+
+if (emojiFile.exists()) {
+	byte[] encoded = Files.readAllBytes(Paths.get(emojiFilePath));
+
+	log.info(&quot;File size &quot; + encoded.length);
+	String byteInString = new String(encoded, StandardCharsets.ISO_8859_1);
+	
+	log.info(&quot;String lenght &quot; + byteInString.getBytes(StandardCharsets.ISO_8859_1).length);
+	vars.put(&quot;emoji_binary_data&quot;, byteInString);
+} else {
+	log.error(&quot;Could not load emoji from file :&quot; + emojiFilePath);
+}
+</stringProp>
+                  </JSR223PreProcessor>
+                  <hashTree/>
                   <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="JSR223 PostProcessor" enabled="true">
                     <stringProp name="scriptLanguage">groovy</stringProp>
                     <stringProp name="parameters"></stringProp>
                     <stringProp name="filename"></stringProp>
                     <stringProp name="cacheKey">true</stringProp>
-                    <stringProp name="script">vars.put(&quot;is-able-upload-custom-emojo&quot;, ${__jexl3(${JMeterThread.last_sample_ok},)});</stringProp>
+                    <stringProp name="script">def response = prev.getResponseDataAsString();    
+
+if (response.contains(&quot;Successfully added emoji&quot;)) {
+	vars.put(&quot;is-able-upload-custom-emojo&quot;, &quot;true&quot;);
+} else {
+	vars.put(&quot;is-able-upload-custom-emojo&quot;, &quot;false&quot;);
+}
+</stringProp>
                   </JSR223PostProcessor>
                   <hashTree/>
                 </hashTree>
@@ -5882,7 +5924,7 @@ if ( sleep_time &gt; 0 ) {
           <hashTree/>
         </hashTree>
       </hashTree>
-      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="false">
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
