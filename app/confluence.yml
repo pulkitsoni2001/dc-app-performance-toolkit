@@ -2,7 +2,7 @@
 settings:
   artifacts-dir: results/confluence/%Y-%m-%d_%H-%M-%S
   aggregator: consolidator
-  verbose: false
+  verbose: true
   check-updates: false    # disable bzt check for updates
   env:
     application_hostname: test_confluence_instance.atlassian.com   # Confluence DC hostname without protocol, port and postfix e.g. test-confluence.atlassian.com or localhost
