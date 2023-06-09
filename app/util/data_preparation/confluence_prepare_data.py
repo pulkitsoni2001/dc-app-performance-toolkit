@@ -41,7 +41,7 @@ def __create_data_set(rest_client, rpc_client):
     perf_user_api = ConfluenceRestClient(CONFLUENCE_SETTINGS.server_url, perf_user['username'], DEFAULT_USER_PASSWORD)
 
     pool = ThreadPool(processes=2)
-    async_pages = pool.apply_async(__get_pages, (perf_user_api, 1))
+    async_pages = pool.apply_async(__get_pages, (perf_user_api, 100))
     async_blogs = pool.apply_async(__get_blogs, (perf_user_api, 5000))
 
     async_pages.wait()
