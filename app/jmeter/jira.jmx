@@ -9397,7 +9397,7 @@ if (response_data.name != vars.get(&quot;app_specific_username&quot;)) {
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assertion after POST request" enabled="true"> -->
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="678861216">id=&quot;setup&quot;</stringProp>
+                    <stringProp name="678861216">/id="setup"/</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.custom_message"></stringProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
