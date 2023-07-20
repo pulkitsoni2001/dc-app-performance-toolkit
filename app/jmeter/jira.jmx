@@ -9330,7 +9330,7 @@ if (response_data.name != vars.get(&quot;app_specific_username&quot;)) {
                 <stringProp name="HTTPSampler.connect_timeout"></stringProp>
                 <stringProp name="HTTPSampler.response_timeout"></stringProp>
               </HTTPSamplerProxy>
-              <hashTree>
+              <!-- <hashTree>
                 <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="app_id" enabled="true">
                   <stringProp name="RegexExtractor.useHeaders">false</stringProp>
                   <stringProp name="RegexExtractor.refname">app_id</stringProp>
@@ -9348,10 +9348,10 @@ if (response_data.name != vars.get(&quot;app_specific_username&quot;)) {
                   <stringProp name="RegexExtractor.default">NOT FOUND</stringProp>
                   <stringProp name="RegexExtractor.match_number">1</stringProp>
                 </RegexExtractor>
-                <hashTree/>
+                <hashTree/> -->
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assertion after GET request" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="261585815">asserttion string</stringProp>
+                    <stringProp name="678861216">id=&quot;rmsis-frame&quot;</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.custom_message"></stringProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -9360,7 +9360,7 @@ if (response_data.name != vars.get(&quot;app_specific_username&quot;)) {
                 </ResponseAssertion>
                 <hashTree/>
               </hashTree>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /app/post_endpoing" enabled="true">
+              <!-- <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /app/post_endpoing" enabled="true">
                 <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
                   <collectionProp name="Arguments.arguments">
                     <elementProp name="id" elementType="HTTPArgument">
@@ -9396,7 +9396,7 @@ if (response_data.name != vars.get(&quot;app_specific_username&quot;)) {
               <hashTree>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assertion after POST request" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="678861216">id=&quot;rmsis-frame&quot;</stringProp>
+                    <stringProp name="983676317">&lt;div id=&quot;graphiql&quot;&gt;</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.custom_message"></stringProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -9405,7 +9405,7 @@ if (response_data.name != vars.get(&quot;app_specific_username&quot;)) {
                 </ResponseAssertion>
                 <hashTree/>
               </hashTree>
-            </hashTree>
+            </hashTree> -->
             <IfController guiclass="IfControllerPanel" testclass="IfController" testname="login_as_default_user_if_specific_user_was_loggedin " enabled="true">
               <stringProp name="IfController.condition">${run_as_specific_user}</stringProp>
               <boolProp name="IfController.evaluateAll">false</boolProp>
