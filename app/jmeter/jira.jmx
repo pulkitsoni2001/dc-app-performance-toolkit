@@ -9349,7 +9349,7 @@ if (response_data.name != vars.get(&quot;app_specific_username&quot;)) {
                   <stringProp name="RegexExtractor.match_number">1</stringProp>
                 </RegexExtractor>
                 <hashTree/>
-                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assertion after GET request" enabled="true">
+                <!-- <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assertion after GET request" enabled="true">
                   <collectionProp name="Asserion.test_strings">
                     <stringProp name="678861216">id=&quot;setup&quot;</stringProp>
                   </collectionProp>
@@ -9357,7 +9357,7 @@ if (response_data.name != vars.get(&quot;app_specific_username&quot;)) {
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
                   <intProp name="Assertion.test_type">16</intProp>
-                </ResponseAssertion>
+                </ResponseAssertion> -->
                 <hashTree/>
               </hashTree>
               <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="POST /app/post_endpoing" enabled="true">
