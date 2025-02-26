@@ -34,7 +34,7 @@ bamboo_license = "bamboo-license"
 # Number of product application nodes.
 # Note: For initial installation this value needs to be set to 1 and it can be changed only after product is fully
 # installed and configured.
-jira_replica_count = 1
+jira_replica_count = 4
 confluence_replica_count = 1
 bitbucket_replica_count = 1
 crowd_replica_count = 1
