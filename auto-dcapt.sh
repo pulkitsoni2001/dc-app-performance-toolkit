@@ -2,11 +2,26 @@
 set -euo pipefail
 
 # ==========================================
-# USAGE: ./auto-dcapt.sh apps/lxp.conf
+# USAGE:
+#   ./auto-dcapt.sh apps/lxp.conf              # Full run (deploy + all tests)
+#   ./auto-dcapt.sh apps/lxp.conf --skip-to 2  # Resume from step 2 (Run 1)
+#
+# STEPS:
+#   0 = Configure tfvars
+#   1 = Deploy cluster
+#   2 = Run 1: Baseline test
+#   3 = App install + reindex + screenshot
+#   4 = Run 2: Passive test + perf report
+#   5 = Inject test data + sync tests + Run 3: Active test (1-node)
+#   6 = Run 4: Scale test (2-node)
+#   7 = Run 5: Scale test (4-node)
+#   8 = Generate scale report
+#   9 = Terminate cluster
 # ==========================================
 if [ -z "${1:-}" ]; then
-  echo "Usage: $0 <app-config-file>"
+  echo "Usage: $0 <app-config-file> [--skip-to <step>]"
   echo "Example: $0 apps/lxp.conf"
+  echo "Example: $0 apps/lxp.conf --skip-to 2"
   echo ""
   echo "Available configs:"
   ls -1 apps/*.conf 2>/dev/null || echo "  (none found in apps/)"
@@ -17,6 +32,13 @@ APP_CONF="$1"
 if [ ! -f "$APP_CONF" ]; then
   echo "ERROR: Config file '$APP_CONF' not found."
   exit 1
+fi
+
+# Parse --skip-to flag
+SKIP_TO=0
+if [ "${2:-}" = "--skip-to" ] && [ -n "${3:-}" ]; then
+  SKIP_TO="$3"
+  echo ">>> Resuming from step $SKIP_TO (skipping steps 0-$((SKIP_TO - 1)))"
 fi
 
 # ==========================================
@@ -80,119 +102,150 @@ get_latest_results() {
   echo "$dir"
 }
 
+# Helper: run bzt test on pod (uses --no-tmux for non-interactive servers)
+run_bzt() {
+  docker run --pull=always --env-file "$TOOLKIT_ROOT/app/util/k8s/aws_envs" \
+    -e "REGION=$REGION" -e "ENVIRONMENT_NAME=$ENVIRONMENT_NAME" \
+    -v "/$PWD:/data-center-terraform/dc-app-performance-toolkit" \
+    -v "/$PWD/app/util/k8s/bzt_on_pod.sh:/data-center-terraform/bzt_on_pod.sh" \
+    atlassianlabs/terraform:2.9.15 bash bzt_on_pod.sh jira.yml --no-tmux
+}
+
 echo "=== Starting Full 5-Run DCAPT Zero-Touch Pipeline ==="
+
+# If resuming, extract the existing URL from jira.yml
+if [ "$SKIP_TO" -gt 1 ]; then
+  EXTRACTED_URL=$(grep 'application_hostname:' "$JIRA_YML" | awk '{print $2}' | tr -d ' ')
+  if [ -z "$EXTRACTED_URL" ]; then
+    echo "ERROR: Cannot resume — no hostname found in jira.yml. Run full pipeline first."
+    exit 1
+  fi
+  echo ">>> Using existing Jira Hostname: $EXTRACTED_URL"
+fi
 
 # ==========================================
 # 0. CONFIGURE TFVARS (Product & License)
 # ==========================================
-echo ">>> Configuring dcapt.tfvars for Jira deployment..."
+if [ "$SKIP_TO" -le 0 ]; then
+  echo ">>> Configuring dcapt.tfvars for Jira deployment..."
 
-# Set product to jira (idempotent - matches any current value)
-sedi 's/^products = .*/products = ["jira"]/' "$TFVARS_FILE"
+  # Set product to jira (idempotent - matches any current value)
+  sedi 's/^products = .*/products = ["jira"]/' "$TFVARS_FILE"
 
-# Set environment name (idempotent)
-sedi "s/^environment_name = .*/environment_name = \"$ENVIRONMENT_NAME\"/" "$TFVARS_FILE"
+  # Set environment name (idempotent)
+  sedi "s/^environment_name = .*/environment_name = \"$ENVIRONMENT_NAME\"/" "$TFVARS_FILE"
 
-# Set jira license (idempotent)
-sedi "s|^jira_license = .*|jira_license = \"$JIRA_LICENSE\"|" "$TFVARS_FILE"
+  # Set jira license (idempotent)
+  sedi "s|^jira_license = .*|jira_license = \"$JIRA_LICENSE\"|" "$TFVARS_FILE"
 
-echo ">>> tfvars configured: product=jira, environment=$ENVIRONMENT_NAME"
+  echo ">>> tfvars configured: product=jira, environment=$ENVIRONMENT_NAME"
+else
+  echo ">>> Skipping step 0: Configure tfvars"
+fi
 
 # ==========================================
 # 1. INITIAL INSTALLATION (1-NODE)
 # ==========================================
-echo ">>> Deploying 1-Node Cluster..."
-cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
+if [ "$SKIP_TO" -le 1 ]; then
+  echo ">>> Deploying 1-Node Cluster..."
+  cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
 
-# Run installation and pipe output to a log file to extract the URL
-docker run --pull=always --env-file aws_envs \
-  -v "/$PWD/dcapt.tfvars:/data-center-terraform/conf.tfvars" \
-  -v "/$PWD/dcapt-snapshots.json:/data-center-terraform/dcapt-snapshots.json" \
-  -v "/$PWD/logs:/data-center-terraform/logs" \
-  atlassianlabs/terraform:2.9.15 ./install.sh -c conf.tfvars | tee "$INSTALL_LOG"
+  # Run installation and pipe output to a log file to extract the URL
+  docker run --pull=always --env-file aws_envs \
+    -v "/$PWD/dcapt.tfvars:/data-center-terraform/conf.tfvars" \
+    -v "/$PWD/dcapt-snapshots.json:/data-center-terraform/dcapt-snapshots.json" \
+    -v "/$PWD/logs:/data-center-terraform/logs" \
+    atlassianlabs/terraform:2.9.15 ./install.sh -c conf.tfvars | tee "$INSTALL_LOG"
 
-# Extract the AWS ELB Hostname from the console output log (strip ANSI codes)
-EXTRACTED_URL=$(sed 's/\x1b\[[0-9;]*m//g' "$INSTALL_LOG" | grep -oE "[a-zA-Z0-9.-]+\.elb\.amazonaws\.com" | head -1)
+  # Extract the AWS ELB Hostname from the console output log (strip ANSI codes)
+  EXTRACTED_URL=$(sed 's/\x1b\[[0-9;]*m//g' "$INSTALL_LOG" | grep -oE "[a-zA-Z0-9.-]+\.elb\.amazonaws\.com" | head -1)
 
-if [ -z "$EXTRACTED_URL" ]; then
-    echo "ERROR: Could not extract Jira URL from Terraform output. Exiting."
-    exit 1
+  if [ -z "$EXTRACTED_URL" ]; then
+      echo "ERROR: Could not extract Jira URL from Terraform output. Exiting."
+      exit 1
+  fi
+  echo ">>> Extracted Jira Hostname: $EXTRACTED_URL"
+
+  cd "$TOOLKIT_ROOT" || exit 1
+
+  # Update jira.yml with the new hostname
+  echo ">>> Updating jira.yml with new hostname..."
+  sedi "s/^ *application_hostname:.*/    application_hostname: $EXTRACTED_URL/" "$JIRA_YML"
+else
+  echo ">>> Skipping step 1: Deploy cluster"
 fi
-echo ">>> Extracted Jira Hostname: $EXTRACTED_URL"
-
-cd "$TOOLKIT_ROOT" || exit 1
-
-# Update jira.yml with the new hostname
-echo ">>> Updating jira.yml with new hostname..."
-sedi "s/^ *application_hostname:.*/    application_hostname: $EXTRACTED_URL/" "$JIRA_YML"
 
 # ==========================================
 # 2. RUN 1: PERFORMANCE REGRESSION (BASELINE)
 # ==========================================
-echo ">>> Starting Run 1: Baseline Test (No App)..."
-docker run --pull=always --env-file "$TOOLKIT_ROOT/app/util/k8s/aws_envs" \
-  -e "REGION=$REGION" -e "ENVIRONMENT_NAME=$ENVIRONMENT_NAME" \
-  -v "/$PWD:/data-center-terraform/dc-app-performance-toolkit" \
-  -v "/$PWD/app/util/k8s/bzt_on_pod.sh:/data-center-terraform/bzt_on_pod.sh" \
-  atlassianlabs/terraform:2.9.15 bash bzt_on_pod.sh jira.yml
+if [ "$SKIP_TO" -le 2 ]; then
+  echo ">>> Starting Run 1: Baseline Test (No App)..."
+  run_bzt
+else
+  echo ">>> Skipping step 2: Run 1 baseline test"
+fi
 
-RUN1_DIR=$(get_latest_results)
+RUN1_DIR=""
+if [ "$SKIP_TO" -le 2 ]; then
+  RUN1_DIR=$(get_latest_results)
+fi
 
 # ==========================================
 # 3. AUTOMATED APP INSTALL, RE-INDEX & SCREENSHOT
 # ==========================================
-echo ">>> Automating App Installation via UPM REST API..."
-TOKEN=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" -I "http://$EXTRACTED_URL/jira/rest/plugins/1.0/" | grep -i 'upm-token' | cut -d: -f2 | tr -d '\r\n ')
+if [ "$SKIP_TO" -le 3 ]; then
+  echo ">>> Automating App Installation via UPM REST API..."
+  TOKEN=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" -I "http://$EXTRACTED_URL/jira/rest/plugins/1.0/" | grep -i 'upm-token' | cut -d: -f2 | tr -d '\r\n ')
 
-if [ -z "$TOKEN" ]; then
-  echo "ERROR: Failed to retrieve UPM token. Check Jira availability and credentials."
-  exit 1
-fi
-
-curl -s -u "$ADMIN_USER:$ADMIN_PASS" \
-  -X POST \
-  -H "Accept: application/json" \
-  -F "plugin=@$APP_FILE_PATH" \
-  "http://$EXTRACTED_URL/jira/rest/plugins/1.0/?token=$TOKEN"
-
-echo ">>> Waiting 60 seconds for the app to initialize..."
-sleep 60
-
-echo ">>> Triggering Foreground Lucene Re-Index via REST API..."
-curl -s -u "$ADMIN_USER:$ADMIN_PASS" \
-  -X POST \
-  -H "Content-Type: application/json" \
-  "http://$EXTRACTED_URL/jira/rest/api/2/reindex?type=FOREGROUND"
-
-echo ">>> Re-index started. Polling reindex status every 60 seconds (max 30 min)..."
-
-MAX_RETRIES=30
-RETRY_COUNT=0
-while true; do
-  REINDEX_STATUS=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" "http://$EXTRACTED_URL/jira/rest/api/2/reindex")
-  PROGRESS=$(echo "$REINDEX_STATUS" | python3 -c "import sys,json; print(json.load(sys.stdin).get('currentProgress', -1))" 2>/dev/null || echo "-1")
-  if [ "$PROGRESS" = "100" ]; then
-    echo ">>> Success! Jira Re-index is complete."
-    break
-  else
-    RETRY_COUNT=$((RETRY_COUNT + 1))
-    if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
-      echo "ERROR: Re-index did not complete within $MAX_RETRIES minutes. Exiting."
-      exit 1
-    fi
-    echo ">>> Still indexing... (progress: ${PROGRESS}%). Checking again in 60s. ($RETRY_COUNT/$MAX_RETRIES)"
-    sleep 60
+  if [ -z "$TOKEN" ]; then
+    echo "ERROR: Failed to retrieve UPM token. Check Jira availability and credentials."
+    exit 1
   fi
-done
 
-echo ">>> Setting up Playwright to capture the mandatory screenshot..."
-PLAYWRIGHT_DIR="$TOOLKIT_ROOT/playwright-tools"
-mkdir -p "$PLAYWRIGHT_DIR" && cd "$PLAYWRIGHT_DIR" || exit 1
-npm init -y > /dev/null 2>&1
-npm install playwright || { echo "ERROR: playwright install failed"; exit 1; }
-npx playwright install chromium --with-deps || { echo "ERROR: chromium install failed"; exit 1; }
+  curl -s -u "$ADMIN_USER:$ADMIN_PASS" \
+    -X POST \
+    -H "Accept: application/json" \
+    -F "plugin=@$APP_FILE_PATH" \
+    "http://$EXTRACTED_URL/jira/rest/plugins/1.0/?token=$TOKEN"
 
-cat << 'EOF' > capture.js
+  echo ">>> Waiting 60 seconds for the app to initialize..."
+  sleep 60
+
+  echo ">>> Triggering Foreground Lucene Re-Index via REST API..."
+  curl -s -u "$ADMIN_USER:$ADMIN_PASS" \
+    -X POST \
+    -H "Content-Type: application/json" \
+    "http://$EXTRACTED_URL/jira/rest/api/2/reindex?type=FOREGROUND"
+
+  echo ">>> Re-index started. Polling reindex status every 60 seconds (max 30 min)..."
+
+  MAX_RETRIES=30
+  RETRY_COUNT=0
+  while true; do
+    REINDEX_STATUS=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" "http://$EXTRACTED_URL/jira/rest/api/2/reindex")
+    PROGRESS=$(echo "$REINDEX_STATUS" | python3 -c "import sys,json; print(json.load(sys.stdin).get('currentProgress', -1))" 2>/dev/null || echo "-1")
+    if [ "$PROGRESS" = "100" ]; then
+      echo ">>> Success! Jira Re-index is complete."
+      break
+    else
+      RETRY_COUNT=$((RETRY_COUNT + 1))
+      if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
+        echo "ERROR: Re-index did not complete within $MAX_RETRIES minutes. Exiting."
+        exit 1
+      fi
+      echo ">>> Still indexing... (progress: ${PROGRESS}%). Checking again in 60s. ($RETRY_COUNT/$MAX_RETRIES)"
+      sleep 60
+    fi
+  done
+
+  echo ">>> Setting up Playwright to capture the mandatory screenshot..."
+  PLAYWRIGHT_DIR="$TOOLKIT_ROOT/playwright-tools"
+  mkdir -p "$PLAYWRIGHT_DIR" && cd "$PLAYWRIGHT_DIR" || exit 1
+  npm init -y > /dev/null 2>&1
+  npm install playwright || { echo "ERROR: playwright install failed"; exit 1; }
+  npx playwright install chromium --with-deps || { echo "ERROR: chromium install failed"; exit 1; }
+
+  cat << 'EOF' > capture.js
 const { chromium } = require('playwright');
 (async () => {
   const url = process.argv[2];
@@ -228,159 +281,173 @@ const { chromium } = require('playwright');
 })();
 EOF
 
-node capture.js "$EXTRACTED_URL" "$ADMIN_USER" "$ADMIN_PASS"
-cd "$TOOLKIT_ROOT" || exit 1
-rm -rf "$PLAYWRIGHT_DIR"
-echo ">>> Screenshot saved successfully as 'lucene_reindex_screenshot.png'!"
+  node capture.js "$EXTRACTED_URL" "$ADMIN_USER" "$ADMIN_PASS"
+  cd "$TOOLKIT_ROOT" || exit 1
+  rm -rf "$PLAYWRIGHT_DIR"
+  echo ">>> Screenshot saved successfully as 'lucene_reindex_screenshot.png'!"
+else
+  echo ">>> Skipping step 3: App install + reindex + screenshot"
+fi
 
 # ==========================================
 # 4. RUN 2: PASSIVE OVERHEAD TEST
 # ==========================================
-echo ">>> Starting Run 2: Passive Test (App installed, no custom actions)..."
-docker run --pull=always --env-file "$TOOLKIT_ROOT/app/util/k8s/aws_envs" \
-  -e "REGION=$REGION" -e "ENVIRONMENT_NAME=$ENVIRONMENT_NAME" \
-  -v "/$PWD:/data-center-terraform/dc-app-performance-toolkit" \
-  -v "/$PWD/app/util/k8s/bzt_on_pod.sh:/data-center-terraform/bzt_on_pod.sh" \
-  atlassianlabs/terraform:2.9.15 bash bzt_on_pod.sh jira.yml
+if [ "$SKIP_TO" -le 4 ]; then
+  echo ">>> Starting Run 2: Passive Test (App installed, no custom actions)..."
+  run_bzt
 
-RUN2_DIR=$(get_latest_results)
+  RUN2_DIR=$(get_latest_results)
 
-echo ">>> Generating Performance Regression Report..."
-sedi "s|relativePath:.*# Run 1|relativePath: \"../results/jira/$RUN1_DIR\" # Run 1|g" "$PERF_PROFILE"
-sedi "s|relativePath:.*# Run 2|relativePath: \"../results/jira/$RUN2_DIR\" # Run 2|g" "$PERF_PROFILE"
+  echo ">>> Generating Performance Regression Report..."
+  # If RUN1_DIR is empty (skipped), grab second-latest results dir
+  if [ -z "$RUN1_DIR" ]; then
+    RUN1_DIR=$(ls -td "$TOOLKIT_ROOT/app/results/jira"/*/ 2>/dev/null | sed -n '2p' | xargs -I{} basename {})
+  fi
+  sedi "s|relativePath:.*# Run 1|relativePath: \"../results/jira/$RUN1_DIR\" # Run 1|g" "$PERF_PROFILE"
+  sedi "s|relativePath:.*# Run 2|relativePath: \"../results/jira/$RUN2_DIR\" # Run 2|g" "$PERF_PROFILE"
 
-docker run --pull=always -v "/$PWD:/dc-app-performance-toolkit" \
-  --workdir="//dc-app-performance-toolkit/app/reports_generation" \
-  --entrypoint="python" \
-  atlassian/dcapt csv_chart_generator.py performance_profile.yml
-
-# ==========================================
-# 4.5 AUTOMATED TEST DATA INJECTION (REST API)
-# ==========================================
-echo ">>> Injecting test data for Custom JQL..."
-# 1. Create Project
-curl -s -o /dev/null -u "$ADMIN_USER:$ADMIN_PASS" \
-  -X POST -H "Content-Type: application/json" \
-  -d '{"key": "TEST", "name": "Custom JQL Test Project", "projectTypeKey": "software", "lead": "'"$ADMIN_USER"'", "assigneeType": "PROJECT_LEAD"}' \
-  "http://$EXTRACTED_URL/jira/rest/api/2/project"
-
-sleep 5
-
-# 2. Create Issues
-curl -s -o /dev/null -u "$ADMIN_USER:$ADMIN_PASS" \
-  -X POST -H "Content-Type: application/json" \
-  -d '{"issueUpdates": [
-        {"fields": {"project": {"key": "TEST"}, "summary": "Automated Custom JQL Issue 1", "issuetype": {"name": "Task"}}},
-        {"fields": {"project": {"key": "TEST"}, "summary": "Automated Custom JQL Issue 2", "issuetype": {"name": "Task"}}},
-        {"fields": {"project": {"key": "TEST"}, "summary": "Automated Custom JQL Issue 3", "issuetype": {"name": "Task"}}}
-      ]}' \
-  "http://$EXTRACTED_URL/jira/rest/api/2/issue/bulk"
-echo ">>> Test data successfully injected!"
+  docker run --pull=always -v "/$PWD:/dc-app-performance-toolkit" \
+    --workdir="//dc-app-performance-toolkit/app/reports_generation" \
+    --entrypoint="python" \
+    atlassian/dcapt csv_chart_generator.py performance_profile.yml
+else
+  echo ">>> Skipping step 4: Run 2 passive test + perf report"
+fi
 
 # ==========================================
-# 5. SYNC CUSTOM TESTS & RUN 3: SCALABILITY (1-NODE, ACTIVE)
+# 5. TEST DATA INJECTION + SYNC TESTS + RUN 3: SCALABILITY (1-NODE, ACTIVE)
 # ==========================================
-echo ">>> Syncing custom JMeter and Selenium tests from branch: $APP_TESTS_BRANCH..."
-git fetch origin
-git checkout "origin/$APP_TESTS_BRANCH" -- app/jmeter/ app/selenium_ui/ || {
-  echo "ERROR: Failed to sync custom tests from branch $APP_TESTS_BRANCH"; exit 1;
-}
+if [ "$SKIP_TO" -le 5 ]; then
+  echo ">>> Injecting test data for Custom JQL..."
+  curl -s -o /dev/null -u "$ADMIN_USER:$ADMIN_PASS" \
+    -X POST -H "Content-Type: application/json" \
+    -d '{"key": "TEST", "name": "Custom JQL Test Project", "projectTypeKey": "software", "lead": "'"$ADMIN_USER"'", "assigneeType": "PROJECT_LEAD"}' \
+    "http://$EXTRACTED_URL/jira/rest/api/2/project"
 
-echo ">>> Modifying jira.yml to enable the newly synced App-Specific Tests..."
-sedi "s/standalone_extension: .*/standalone_extension: $STANDALONE_EXTENSION/" "$JIRA_YML"
-sedi "s/# test_1_custom_action/test_1_custom_action/" "$JIRA_YML"
-sedi "s/# test_1_selenium_custom_action/test_1_selenium_custom_action/" "$JIRA_YML"
-sedi "s|custom_jql:.*|custom_jql: \"$MY_CUSTOM_JQL\"|" "$JIRA_YML"
+  sleep 5
 
-echo ">>> Starting Run 3: Active Test with synced tests enabled..."
-docker run --pull=always --env-file "$TOOLKIT_ROOT/app/util/k8s/aws_envs" \
-  -e "REGION=$REGION" -e "ENVIRONMENT_NAME=$ENVIRONMENT_NAME" \
-  -v "/$PWD:/data-center-terraform/dc-app-performance-toolkit" \
-  -v "/$PWD/app/util/k8s/bzt_on_pod.sh:/data-center-terraform/bzt_on_pod.sh" \
-  atlassianlabs/terraform:2.9.15 bash bzt_on_pod.sh jira.yml
+  curl -s -o /dev/null -u "$ADMIN_USER:$ADMIN_PASS" \
+    -X POST -H "Content-Type: application/json" \
+    -d '{"issueUpdates": [
+          {"fields": {"project": {"key": "TEST"}, "summary": "Automated Custom JQL Issue 1", "issuetype": {"name": "Task"}}},
+          {"fields": {"project": {"key": "TEST"}, "summary": "Automated Custom JQL Issue 2", "issuetype": {"name": "Task"}}},
+          {"fields": {"project": {"key": "TEST"}, "summary": "Automated Custom JQL Issue 3", "issuetype": {"name": "Task"}}}
+        ]}' \
+    "http://$EXTRACTED_URL/jira/rest/api/2/issue/bulk"
+  echo ">>> Test data successfully injected!"
 
-RUN3_DIR=$(get_latest_results)
+  echo ">>> Syncing custom JMeter and Selenium tests from branch: $APP_TESTS_BRANCH..."
+  git fetch origin
+  git checkout "origin/$APP_TESTS_BRANCH" -- app/jmeter/ app/selenium_ui/ || {
+    echo "ERROR: Failed to sync custom tests from branch $APP_TESTS_BRANCH"; exit 1;
+  }
+
+  echo ">>> Modifying jira.yml to enable the newly synced App-Specific Tests..."
+  sedi "s/standalone_extension: .*/standalone_extension: $STANDALONE_EXTENSION/" "$JIRA_YML"
+  sedi "s/# test_1_custom_action/test_1_custom_action/" "$JIRA_YML"
+  sedi "s/# test_1_selenium_custom_action/test_1_selenium_custom_action/" "$JIRA_YML"
+  sedi "s|custom_jql:.*|custom_jql: \"$MY_CUSTOM_JQL\"|" "$JIRA_YML"
+
+  echo ">>> Starting Run 3: Active Test with synced tests enabled..."
+  run_bzt
+
+  RUN3_DIR=$(get_latest_results)
+else
+  echo ">>> Skipping step 5: Test data + sync + Run 3"
+fi
 
 # ==========================================
 # 6. RUN 4: SCALABILITY (2-NODE)
 # ==========================================
-echo ">>> Scaling cluster to 2 Nodes..."
-sedi "s/jira_replica_count *= *1/jira_replica_count = 2/" "$TFVARS_FILE"
+if [ "$SKIP_TO" -le 6 ]; then
+  echo ">>> Scaling cluster to 2 Nodes..."
+  sedi "s/jira_replica_count *= *1/jira_replica_count = 2/" "$TFVARS_FILE"
 
-cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
-docker run --pull=always --env-file aws_envs \
-  -v "/$PWD/dcapt.tfvars:/data-center-terraform/conf.tfvars" \
-  -v "/$PWD/dcapt-snapshots.json:/data-center-terraform/dcapt-snapshots.json" \
-  -v "/$PWD/logs:/data-center-terraform/logs" \
-  atlassianlabs/terraform:2.9.15 ./install.sh -c conf.tfvars
-cd "$TOOLKIT_ROOT" || exit 1
+  cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
+  docker run --pull=always --env-file aws_envs \
+    -v "/$PWD/dcapt.tfvars:/data-center-terraform/conf.tfvars" \
+    -v "/$PWD/dcapt-snapshots.json:/data-center-terraform/dcapt-snapshots.json" \
+    -v "/$PWD/logs:/data-center-terraform/logs" \
+    atlassianlabs/terraform:2.9.15 ./install.sh -c conf.tfvars
+  cd "$TOOLKIT_ROOT" || exit 1
 
-echo ">>> Starting Run 4: 2-Node Scale Test..."
-docker run --pull=always --env-file "$TOOLKIT_ROOT/app/util/k8s/aws_envs" \
-  -e "REGION=$REGION" -e "ENVIRONMENT_NAME=$ENVIRONMENT_NAME" \
-  -v "/$PWD:/data-center-terraform/dc-app-performance-toolkit" \
-  -v "/$PWD/app/util/k8s/bzt_on_pod.sh:/data-center-terraform/bzt_on_pod.sh" \
-  atlassianlabs/terraform:2.9.15 bash bzt_on_pod.sh jira.yml
+  echo ">>> Starting Run 4: 2-Node Scale Test..."
+  run_bzt
 
-RUN4_DIR=$(get_latest_results)
+  RUN4_DIR=$(get_latest_results)
+else
+  echo ">>> Skipping step 6: Run 4 (2-node)"
+fi
 
 # ==========================================
 # 7. RUN 5: SCALABILITY (4-NODE)
 # ==========================================
-echo ">>> Scaling cluster to 4 Nodes..."
-sedi "s/jira_replica_count *= *2/jira_replica_count = 4/" "$TFVARS_FILE"
+if [ "$SKIP_TO" -le 7 ]; then
+  echo ">>> Scaling cluster to 4 Nodes..."
+  sedi "s/jira_replica_count *= *2/jira_replica_count = 4/" "$TFVARS_FILE"
 
-cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
-docker run --pull=always --env-file aws_envs \
-  -v "/$PWD/dcapt.tfvars:/data-center-terraform/conf.tfvars" \
-  -v "/$PWD/dcapt-snapshots.json:/data-center-terraform/dcapt-snapshots.json" \
-  -v "/$PWD/logs:/data-center-terraform/logs" \
-  atlassianlabs/terraform:2.9.15 ./install.sh -c conf.tfvars
-cd "$TOOLKIT_ROOT" || exit 1
+  cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
+  docker run --pull=always --env-file aws_envs \
+    -v "/$PWD/dcapt.tfvars:/data-center-terraform/conf.tfvars" \
+    -v "/$PWD/dcapt-snapshots.json:/data-center-terraform/dcapt-snapshots.json" \
+    -v "/$PWD/logs:/data-center-terraform/logs" \
+    atlassianlabs/terraform:2.9.15 ./install.sh -c conf.tfvars
+  cd "$TOOLKIT_ROOT" || exit 1
 
-echo ">>> Starting Run 5: 4-Node Scale Test..."
-docker run --pull=always --env-file "$TOOLKIT_ROOT/app/util/k8s/aws_envs" \
-  -e "REGION=$REGION" -e "ENVIRONMENT_NAME=$ENVIRONMENT_NAME" \
-  -v "/$PWD:/data-center-terraform/dc-app-performance-toolkit" \
-  -v "/$PWD/app/util/k8s/bzt_on_pod.sh:/data-center-terraform/bzt_on_pod.sh" \
-  atlassianlabs/terraform:2.9.15 bash bzt_on_pod.sh jira.yml
+  echo ">>> Starting Run 5: 4-Node Scale Test..."
+  run_bzt
 
-RUN5_DIR=$(get_latest_results)
+  RUN5_DIR=$(get_latest_results)
+else
+  echo ">>> Skipping step 7: Run 5 (4-node)"
+fi
 
 # ==========================================
 # 8. GENERATE SCALABILITY REPORT
 # ==========================================
-echo ">>> Generating Scale Report..."
-sedi "s|relativePath:.*# 1 Node|relativePath: \"../results/jira/$RUN3_DIR\" # 1 Node|g" "$SCALE_PROFILE"
-sedi "s|relativePath:.*# 2 Nodes|relativePath: \"../results/jira/$RUN4_DIR\" # 2 Nodes|g" "$SCALE_PROFILE"
-sedi "s|relativePath:.*# 4 Nodes|relativePath: \"../results/jira/$RUN5_DIR\" # 4 Nodes|g" "$SCALE_PROFILE"
+if [ "$SKIP_TO" -le 8 ]; then
+  echo ">>> Generating Scale Report..."
+  # If RUN3/4/5 dirs are empty (skipped earlier), grab from existing results
+  results_dirs=($(ls -td "$TOOLKIT_ROOT/app/results/jira"/*/ 2>/dev/null | head -3))
+  RUN5_DIR="${RUN5_DIR:-$(basename "${results_dirs[0]:-}")}"
+  RUN4_DIR="${RUN4_DIR:-$(basename "${results_dirs[1]:-}")}"
+  RUN3_DIR="${RUN3_DIR:-$(basename "${results_dirs[2]:-}")}"
 
-docker run --pull=always -v "/$PWD:/dc-app-performance-toolkit" \
-  --workdir="//dc-app-performance-toolkit/app/reports_generation" \
-  --entrypoint="python" \
-  atlassian/dcapt csv_chart_generator.py scale_profile.yml
+  sedi "s|relativePath:.*# 1 Node|relativePath: \"../results/jira/$RUN3_DIR\" # 1 Node|g" "$SCALE_PROFILE"
+  sedi "s|relativePath:.*# 2 Nodes|relativePath: \"../results/jira/$RUN4_DIR\" # 2 Nodes|g" "$SCALE_PROFILE"
+  sedi "s|relativePath:.*# 4 Nodes|relativePath: \"../results/jira/$RUN5_DIR\" # 4 Nodes|g" "$SCALE_PROFILE"
+
+  docker run --pull=always -v "/$PWD:/dc-app-performance-toolkit" \
+    --workdir="//dc-app-performance-toolkit/app/reports_generation" \
+    --entrypoint="python" \
+    atlassian/dcapt csv_chart_generator.py scale_profile.yml
+else
+  echo ">>> Skipping step 8: Scale report"
+fi
 
 # ==========================================
 # 9. TERMINATE CLUSTER
 # ==========================================
-echo ">>> Terminating cluster (graceful uninstall)..."
-cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
+if [ "$SKIP_TO" -le 9 ]; then
+  echo ">>> Terminating cluster (graceful uninstall)..."
+  cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
 
-docker run --pull=always --env-file aws_envs \
-  -v "/$PWD/dcapt.tfvars:/data-center-terraform/conf.tfvars" \
-  -v "/$PWD/dcapt-snapshots.json:/data-center-terraform/dcapt-snapshots.json" \
-  -v "/$PWD/logs:/data-center-terraform/logs" \
-  atlassianlabs/terraform:2.9.15 ./uninstall.sh -c conf.tfvars || {
-    echo ">>> Graceful uninstall failed. Attempting force termination..."
-    docker run --pull=always --env-file aws_envs \
-      --workdir="//data-center-terraform" \
-      --entrypoint="python" \
-      -v "/$PWD/terminate_cluster.py:/data-center-terraform/terminate_cluster.py" \
-      atlassian/dcapt terminate_cluster.py --cluster_name "atlas-${ENVIRONMENT_NAME}-cluster" --aws_region "$REGION"
-  }
+  docker run --pull=always --env-file aws_envs \
+    -v "/$PWD/dcapt.tfvars:/data-center-terraform/conf.tfvars" \
+    -v "/$PWD/dcapt-snapshots.json:/data-center-terraform/dcapt-snapshots.json" \
+    -v "/$PWD/logs:/data-center-terraform/logs" \
+    atlassianlabs/terraform:2.9.15 ./uninstall.sh -c conf.tfvars || {
+      echo ">>> Graceful uninstall failed. Attempting force termination..."
+      docker run --pull=always --env-file aws_envs \
+        --workdir="//data-center-terraform" \
+        --entrypoint="python" \
+        -v "/$PWD/terminate_cluster.py:/data-center-terraform/terminate_cluster.py" \
+        atlassian/dcapt terminate_cluster.py --cluster_name "atlas-${ENVIRONMENT_NAME}-cluster" --aws_region "$REGION"
+    }
 
-cd "$TOOLKIT_ROOT" || exit 1
-echo ">>> Cluster terminated."
+  cd "$TOOLKIT_ROOT" || exit 1
+  echo ">>> Cluster terminated."
+fi
 
 echo "=================================================================="
 echo "=== ALL TESTS COMPLETE! ==="
