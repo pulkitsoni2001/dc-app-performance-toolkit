@@ -87,14 +87,14 @@ echo "=== Starting Full 5-Run DCAPT Zero-Touch Pipeline ==="
 # ==========================================
 echo ">>> Configuring dcapt.tfvars for Jira deployment..."
 
-# Set product to jira
-sedi 's/products = \["product-to-deploy"\]/products = ["jira"]/' "$TFVARS_FILE"
+# Set product to jira (idempotent - matches any current value)
+sedi 's/^products = .*/products = ["jira"]/' "$TFVARS_FILE"
 
-# Set environment name
-sedi "s/environment_name = \"dcapt-product\"/environment_name = \"$ENVIRONMENT_NAME\"/" "$TFVARS_FILE"
+# Set environment name (idempotent)
+sedi "s/^environment_name = .*/environment_name = \"$ENVIRONMENT_NAME\"/" "$TFVARS_FILE"
 
-# Set jira license
-sedi "s|jira_license = \"jira-license\"|jira_license = \"$JIRA_LICENSE\"|" "$TFVARS_FILE"
+# Set jira license (idempotent)
+sedi "s|^jira_license = .*|jira_license = \"$JIRA_LICENSE\"|" "$TFVARS_FILE"
 
 echo ">>> tfvars configured: product=jira, environment=$ENVIRONMENT_NAME"
 
