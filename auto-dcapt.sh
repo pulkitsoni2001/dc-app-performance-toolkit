@@ -360,6 +360,28 @@ docker run --pull=always -v "/$PWD:/dc-app-performance-toolkit" \
   --entrypoint="python" \
   atlassian/dcapt csv_chart_generator.py scale_profile.yml
 
+# ==========================================
+# 9. TERMINATE CLUSTER
+# ==========================================
+echo ">>> Terminating cluster (graceful uninstall)..."
+cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
+
+docker run --pull=always --env-file aws_envs \
+  -v "/$PWD/dcapt.tfvars:/data-center-terraform/conf.tfvars" \
+  -v "/$PWD/dcapt-snapshots.json:/data-center-terraform/dcapt-snapshots.json" \
+  -v "/$PWD/logs:/data-center-terraform/logs" \
+  atlassianlabs/terraform:2.9.15 ./uninstall.sh -c conf.tfvars || {
+    echo ">>> Graceful uninstall failed. Attempting force termination..."
+    docker run --pull=always --env-file aws_envs \
+      --workdir="//data-center-terraform" \
+      --entrypoint="python" \
+      -v "/$PWD/terminate_cluster.py:/data-center-terraform/terminate_cluster.py" \
+      atlassian/dcapt terminate_cluster.py --cluster_name "atlas-${ENVIRONMENT_NAME}-cluster" --aws_region "$REGION"
+  }
+
+cd "$TOOLKIT_ROOT" || exit 1
+echo ">>> Cluster terminated."
+
 echo "=================================================================="
 echo "=== ALL TESTS COMPLETE! ==="
 echo "1. Your screenshot is saved in the root folder as: lucene_reindex_screenshot.png"
