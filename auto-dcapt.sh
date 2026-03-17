@@ -170,7 +170,7 @@ if [ "$SKIP_TO" -le 1 ]; then
 
   # Update jira.yml with the new hostname
   echo ">>> Updating jira.yml with new hostname..."
-  sedi "s/^ *application_hostname:.*/    application_hostname: $EXTRACTED_URL/" "$JIRA_YML"
+  sedi "s|application_hostname:.*# Jira DC hostname.*|application_hostname: $EXTRACTED_URL   # Jira DC hostname|" "$JIRA_YML"
 else
   echo ">>> Skipping step 1: Deploy cluster"
 fi
