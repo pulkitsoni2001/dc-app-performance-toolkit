@@ -292,29 +292,31 @@ const { chromium } = require('playwright');
   console.log("Navigating to Jira Login...");
   await page.goto(`http://${url}/jira/login.jsp`, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
-  // Wait for either login form or already logged in
-  try {
-    await page.waitForSelector('#login-form-username, .aui-header-logo', { timeout: 30000 });
-  } catch(e) {
-    console.log("DEBUG: Page content:", await page.content().then(c => c.substring(0, 500)));
-  }
+  // Wait for login form to appear
+  await page.waitForSelector('input[name="os_username"], #login-form-username', { timeout: 30000 });
 
-  if (await page.locator('#login-form-username').isVisible()) {
-    console.log("Filling login form...");
-    await page.fill('#login-form-username', user);
-    await page.fill('#login-form-password', pass);
-    await page.click('#login-form-submit');
-    await page.waitForLoadState('networkidle', { timeout: 60000 });
-  }
+  // Try multiple selector patterns for different Jira versions
+  const usernameField = page.locator('input[name="os_username"]').or(page.locator('#login-form-username'));
+  const passwordField = page.locator('input[name="os_password"]').or(page.locator('#login-form-password'));
+  const loginButton = page.locator('#login-form-submit').or(page.locator('input[type="submit"][value="Log in"]')).or(page.locator('button:has-text("Log in")'));
+
+  console.log("Filling login form...");
+  await usernameField.fill(user);
+  await passwordField.fill(pass);
+  await loginButton.click();
+  await page.waitForLoadState('networkidle', { timeout: 60000 });
 
   console.log("Navigating to Index Admin Page...");
   await page.goto(`http://${url}/jira/secure/admin/jira/IndexAdmin.jspa`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForLoadState('networkidle', { timeout: 60000 });
 
-  if (await page.locator('#login-form-authenticatePassword').isVisible().catch(() => false)) {
-      console.log("WebSudo prompt detected. Entering admin password again...");
-      await page.fill('#login-form-authenticatePassword', pass);
-      await page.click('#authenticateButton');
+  // Handle WebSudo or second login prompt
+  const websudo = page.locator('#login-form-authenticatePassword, input[name="webSudoPassword"], input[name="os_password"]');
+  if (await websudo.isVisible({ timeout: 5000 }).catch(() => false)) {
+      console.log("WebSudo/auth prompt detected. Entering password again...");
+      await websudo.fill(pass);
+      const authBtn = page.locator('#login-form-submit, #authenticateButton, button:has-text("Log in"), input[type="submit"]');
+      await authBtn.click();
       await page.waitForLoadState('networkidle', { timeout: 60000 });
   }
 
