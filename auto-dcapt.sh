@@ -349,10 +349,25 @@ if [ "$SKIP_TO" -le 5 ]; then
   if [ -z "$RUN1_DIR" ]; then
     RUN1_DIR=$(ls -td "$TOOLKIT_ROOT/app/results/jira"/*/ 2>/dev/null | sed -n '2p' | xargs -I{} basename {})
   fi
-  sedi "s|relativePath:.*# Run 1|relativePath: \"../results/jira/$RUN1_DIR\" # Run 1|g" "$PERF_PROFILE"
-  sedi "s|relativePath:.*# Run 2|relativePath: \"../results/jira/$RUN2_DIR\" # Run 2|g" "$PERF_PROFILE"
+  # Write performance_profile.yml with actual result paths
+  cat > "$PERF_PROFILE" << PERFEOF
+column_name: "90% Line"
+runs:
+  - runName: "without app"
+    runType: "baseline"
+    relativePath: "./app/results/jira/$RUN1_DIR"
+  - runName: "with app"
+    runType: "experiment"
+    relativePath: "./app/results/jira/$RUN2_DIR"
+index_col: "Action"
+title: "DCAPT Performance Testing"
+image_height_px: 1000
+image_width_px: 1600
+check_actions_count: false
+PERFEOF
 
-  docker run --pull=always -v "/$PWD:/dc-app-performance-toolkit" \
+  cd "$TOOLKIT_ROOT" || exit 1
+  docker run --pull=always -v "$TOOLKIT_ROOT:/dc-app-performance-toolkit" \
     --workdir="//dc-app-performance-toolkit/app/reports_generation" \
     --entrypoint="python" \
     atlassian/dcapt csv_chart_generator.py performance_profile.yml
@@ -460,11 +475,28 @@ if [ "$SKIP_TO" -le 9 ]; then
   RUN4_DIR="${RUN4_DIR:-$(basename "${results_dirs[1]:-}")}"
   RUN3_DIR="${RUN3_DIR:-$(basename "${results_dirs[2]:-}")}"
 
-  sedi "s|relativePath:.*# 1 Node|relativePath: \"../results/jira/$RUN3_DIR\" # 1 Node|g" "$SCALE_PROFILE"
-  sedi "s|relativePath:.*# 2 Nodes|relativePath: \"../results/jira/$RUN4_DIR\" # 2 Nodes|g" "$SCALE_PROFILE"
-  sedi "s|relativePath:.*# 4 Nodes|relativePath: \"../results/jira/$RUN5_DIR\" # 4 Nodes|g" "$SCALE_PROFILE"
+  # Write scale_profile.yml with actual result paths
+  cat > "$SCALE_PROFILE" << SCALEEOF
+column_name: "90% Line"
+runs:
+  - runName: "1 Node"
+    runType: "baseline"
+    relativePath: "./app/results/jira/$RUN3_DIR"
+  - runName: "2 Nodes"
+    runType: "experiment"
+    relativePath: "./app/results/jira/$RUN4_DIR"
+  - runName: "4 Nodes"
+    runType: "experiment"
+    relativePath: "./app/results/jira/$RUN5_DIR"
+index_col: "Action"
+title: "DCAPT Scale Testing"
+image_height_px: 1000
+image_width_px: 1600
+check_actions_count: false
+SCALEEOF
 
-  docker run --pull=always -v "/$PWD:/dc-app-performance-toolkit" \
+  cd "$TOOLKIT_ROOT" || exit 1
+  docker run --pull=always -v "$TOOLKIT_ROOT:/dc-app-performance-toolkit" \
     --workdir="//dc-app-performance-toolkit/app/reports_generation" \
     --entrypoint="python" \
     atlassian/dcapt csv_chart_generator.py scale_profile.yml
