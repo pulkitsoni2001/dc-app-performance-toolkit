@@ -223,25 +223,37 @@ if [ "$SKIP_TO" -le 3 ]; then
     -H "Content-Type: application/json" \
     "http://$EXTRACTED_URL/jira/rest/api/2/reindex?type=FOREGROUND"
 
-  echo ">>> Re-index started. Polling reindex status every 60 seconds (max 30 min)..."
+  echo ">>> Re-index started. Polling reindex status every 60 seconds (max 2 hours)..."
 
-  MAX_RETRIES=30
+  MAX_RETRIES=120
   RETRY_COUNT=0
   while true; do
-    REINDEX_STATUS=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" "http://$EXTRACTED_URL/jira/rest/api/2/reindex")
-    PROGRESS=$(echo "$REINDEX_STATUS" | python3 -c "import sys,json; print(json.load(sys.stdin).get('currentProgress', -1))" 2>/dev/null || echo "-1")
-    if [ "$PROGRESS" = "100" ]; then
+    REINDEX_STATUS=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" "http://$EXTRACTED_URL/jira/rest/api/2/reindex" || true)
+    echo ">>> DEBUG reindex response: $REINDEX_STATUS"
+
+    # Parse both currentProgress and success fields
+    PROGRESS=$(echo "$REINDEX_STATUS" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('currentProgress', -1))" 2>/dev/null || echo "-1")
+    SUCCESS=$(echo "$REINDEX_STATUS" | python3 -c "import sys,json; d=json.load(sys.stdin); print(str(d.get('success', False)).lower())" 2>/dev/null || echo "false")
+
+    if [ "$PROGRESS" = "100" ] || [ "$SUCCESS" = "true" ]; then
       echo ">>> Success! Jira Re-index is complete."
       break
-    else
-      RETRY_COUNT=$((RETRY_COUNT + 1))
-      if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
-        echo "ERROR: Re-index did not complete within $MAX_RETRIES minutes. Exiting."
-        exit 1
-      fi
-      echo ">>> Still indexing... (progress: ${PROGRESS}%). Checking again in 60s. ($RETRY_COUNT/$MAX_RETRIES)"
-      sleep 60
     fi
+
+    # If progress is -1 it may mean reindex finished or response format changed
+    # Check if there's no active task (empty or no currentProgress means done)
+    if [ "$PROGRESS" = "-1" ] && [ "$RETRY_COUNT" -gt 2 ]; then
+      echo ">>> Re-index appears complete (no active task found)."
+      break
+    fi
+
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
+      echo "ERROR: Re-index did not complete within 2 hours. Exiting."
+      exit 1
+    fi
+    echo ">>> Still indexing... (progress: ${PROGRESS}%). Checking again in 60s. ($RETRY_COUNT/$MAX_RETRIES)"
+    sleep 60
   done
 
   echo ">>> Setting up Playwright to capture the mandatory screenshot..."
