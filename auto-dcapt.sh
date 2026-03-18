@@ -197,7 +197,7 @@ fi
 # ==========================================
 if [ "$SKIP_TO" -le 3 ]; then
   echo ">>> Automating App Installation via UPM REST API..."
-  TOKEN=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" -D- -o /dev/null "http://$EXTRACTED_URL/jira/rest/plugins/1.0/" | grep -i 'upm-token' | cut -d: -f2 | tr -d '\r\n ')
+  TOKEN=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" -D- -o /dev/null "http://$EXTRACTED_URL/jira/rest/plugins/1.0/" | grep -i 'upm-token' | awk '{print $2}' | tr -d '\r\n')
 
   if [ -z "$TOKEN" ]; then
     echo "ERROR: Failed to retrieve UPM token. Check Jira availability and credentials."
