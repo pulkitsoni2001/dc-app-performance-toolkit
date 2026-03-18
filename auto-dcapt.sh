@@ -281,26 +281,41 @@ const { chromium } = require('playwright');
   const user = process.argv[3];
   const pass = process.argv[4];
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+  });
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
+  page.setDefaultTimeout(60000);
 
   console.log("Navigating to Jira Login...");
-  await page.goto(`http://${url}/jira/login.jsp`);
-  await page.fill('#login-form-username', user);
-  await page.fill('#login-form-password', pass);
-  await page.click('#login-form-submit');
-  await page.waitForLoadState('networkidle');
+  await page.goto(`http://${url}/jira/login.jsp`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+
+  // Wait for either login form or already logged in
+  try {
+    await page.waitForSelector('#login-form-username, .aui-header-logo', { timeout: 30000 });
+  } catch(e) {
+    console.log("DEBUG: Page content:", await page.content().then(c => c.substring(0, 500)));
+  }
+
+  if (await page.locator('#login-form-username').isVisible()) {
+    console.log("Filling login form...");
+    await page.fill('#login-form-username', user);
+    await page.fill('#login-form-password', pass);
+    await page.click('#login-form-submit');
+    await page.waitForLoadState('networkidle', { timeout: 60000 });
+  }
 
   console.log("Navigating to Index Admin Page...");
-  await page.goto(`http://${url}/jira/secure/admin/jira/IndexAdmin.jspa`);
-  await page.waitForLoadState('networkidle');
+  await page.goto(`http://${url}/jira/secure/admin/jira/IndexAdmin.jspa`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForLoadState('networkidle', { timeout: 60000 });
 
-  if (await page.locator('#login-form-authenticatePassword').isVisible()) {
+  if (await page.locator('#login-form-authenticatePassword').isVisible().catch(() => false)) {
       console.log("WebSudo prompt detected. Entering admin password again...");
       await page.fill('#login-form-authenticatePassword', pass);
       await page.click('#authenticateButton');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle', { timeout: 60000 });
   }
 
   console.log("Taking full page screenshot...");
