@@ -103,21 +103,23 @@ get_latest_results() {
 }
 
 # Helper: run bzt test on pod (uses --no-tmux for non-interactive servers)
+# Always runs from TOOLKIT_ROOT regardless of current directory
 run_bzt() {
+  cd "$TOOLKIT_ROOT" || exit 1
   docker run --pull=always --env-file "$TOOLKIT_ROOT/app/util/k8s/aws_envs" \
     -e "REGION=$REGION" -e "ENVIRONMENT_NAME=$ENVIRONMENT_NAME" \
-    -v "/$PWD:/data-center-terraform/dc-app-performance-toolkit" \
-    -v "/$PWD/app/util/k8s/bzt_on_pod.sh:/data-center-terraform/bzt_on_pod.sh" \
+    -v "$TOOLKIT_ROOT:/data-center-terraform/dc-app-performance-toolkit" \
+    -v "$TOOLKIT_ROOT/app/util/k8s/bzt_on_pod.sh:/data-center-terraform/bzt_on_pod.sh" \
     atlassianlabs/terraform:2.9.15 bash bzt_on_pod.sh jira.yml --no-tmux
 }
 
 echo "=== Starting Full 5-Run DCAPT Zero-Touch Pipeline ==="
 
-# If resuming, extract the existing URL from jira.yml
+# If resuming, extract the existing URL from jira.yml (only the config line, not jmeter variable ref)
 if [ "$SKIP_TO" -gt 1 ]; then
-  EXTRACTED_URL=$(grep 'application_hostname:' "$JIRA_YML" | awk '{print $2}' | tr -d ' ')
-  if [ -z "$EXTRACTED_URL" ]; then
-    echo "ERROR: Cannot resume — no hostname found in jira.yml. Run full pipeline first."
+  EXTRACTED_URL=$(grep 'application_hostname:.*# Jira DC hostname' "$JIRA_YML" | awk '{print $2}' | tr -d ' ')
+  if [ -z "$EXTRACTED_URL" ] || [[ "$EXTRACTED_URL" == *'${'* ]] || [[ "$EXTRACTED_URL" == "test_jira_instance"* ]]; then
+    echo "ERROR: Cannot resume — no valid hostname found in jira.yml. Run full pipeline first or set it manually."
     exit 1
   fi
   echo ">>> Using existing Jira Hostname: $EXTRACTED_URL"
@@ -187,7 +189,7 @@ fi
 
 RUN1_DIR=""
 if [ "$SKIP_TO" -le 2 ]; then
-  RUN1_DIR=$(get_latest_results)
+  RUN1_DIR=$(get_latest_results) || true
 fi
 
 # ==========================================
@@ -337,9 +339,10 @@ if [ "$SKIP_TO" -le 5 ]; then
   echo ">>> Test data successfully injected!"
 
   echo ">>> Syncing custom JMeter and Selenium tests from branch: $APP_TESTS_BRANCH..."
-  git fetch origin
-  git checkout "origin/$APP_TESTS_BRANCH" -- app/jmeter/ app/selenium_ui/ || {
-    echo "ERROR: Failed to sync custom tests from branch $APP_TESTS_BRANCH"; exit 1;
+  GIT_REMOTE=$(git remote | head -1)
+  git fetch "$GIT_REMOTE"
+  git checkout "$GIT_REMOTE/$APP_TESTS_BRANCH" -- app/jmeter/ app/selenium_ui/ || {
+    echo "ERROR: Failed to sync custom tests from branch $APP_TESTS_BRANCH on remote $GIT_REMOTE"; exit 1;
   }
 
   echo ">>> Modifying jira.yml to enable the newly synced App-Specific Tests..."
@@ -361,7 +364,7 @@ fi
 # ==========================================
 if [ "$SKIP_TO" -le 6 ]; then
   echo ">>> Scaling cluster to 2 Nodes..."
-  sedi "s/jira_replica_count *= *1/jira_replica_count = 2/" "$TFVARS_FILE"
+  sedi "s/^jira_replica_count *= *.*/jira_replica_count = 2/" "$TFVARS_FILE"
 
   cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
   docker run --pull=always --env-file aws_envs \
@@ -384,7 +387,7 @@ fi
 # ==========================================
 if [ "$SKIP_TO" -le 7 ]; then
   echo ">>> Scaling cluster to 4 Nodes..."
-  sedi "s/jira_replica_count *= *2/jira_replica_count = 4/" "$TFVARS_FILE"
+  sedi "s/^jira_replica_count *= *.*/jira_replica_count = 4/" "$TFVARS_FILE"
 
   cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
   docker run --pull=always --env-file aws_envs \
