@@ -10,13 +10,14 @@ set -euo pipefail
 #   0 = Configure tfvars
 #   1 = Deploy cluster
 #   2 = Run 1: Baseline test
-#   3 = App install + reindex + screenshot
-#   4 = Run 2: Passive test + perf report
-#   5 = Inject test data + sync tests + Run 3: Active test (1-node)
-#   6 = Run 4: Scale test (2-node)
-#   7 = Run 5: Scale test (4-node)
-#   8 = Generate scale report
-#   9 = Terminate cluster
+#   3 = Wait for Jira + App install + reindex
+#   4 = Wait for Jira (reindex recovery) + screenshot
+#   5 = Run 2: Passive test + perf report
+#   6 = Inject test data + sync tests + Run 3: Active test (1-node)
+#   7 = Run 4: Scale test (2-node)
+#   8 = Run 5: Scale test (4-node)
+#   9 = Generate scale report
+#   10 = Terminate cluster
 # ==========================================
 if [ -z "${1:-}" ]; then
   echo "Usage: $0 <app-config-file> [--skip-to <step>]"
@@ -193,9 +194,27 @@ if [ "$SKIP_TO" -le 2 ]; then
 fi
 
 # ==========================================
-# 3. AUTOMATED APP INSTALL, RE-INDEX & SCREENSHOT
+# 3. APP INSTALL + TRIGGER REINDEX
 # ==========================================
 if [ "$SKIP_TO" -le 3 ]; then
+  # Wait for Jira to be available before proceeding
+  echo ">>> Waiting for Jira to be available..."
+  JIRA_WAIT=0
+  while true; do
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://$EXTRACTED_URL/jira/status" || true)
+    if [ "$HTTP_CODE" = "200" ]; then
+      echo ">>> Jira is up (HTTP 200)."
+      break
+    fi
+    JIRA_WAIT=$((JIRA_WAIT + 1))
+    if [ "$JIRA_WAIT" -ge 120 ]; then
+      echo "ERROR: Jira not available after 2 hours. Exiting."
+      exit 1
+    fi
+    echo ">>> Jira not ready (HTTP $HTTP_CODE). Retrying in 60s... ($JIRA_WAIT/120)"
+    sleep 60
+  done
+
   echo ">>> Automating App Installation via UPM REST API..."
   UPM_HEADERS=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" -D- -o /dev/null "http://$EXTRACTED_URL/jira/rest/plugins/1.0/" || true)
   TOKEN=$(echo "$UPM_HEADERS" | grep -i 'upm-token' | awk '{print $2}' | tr -d '\r\n' || true)
@@ -222,37 +241,29 @@ if [ "$SKIP_TO" -le 3 ]; then
     -X POST \
     -H "Content-Type: application/json" \
     "http://$EXTRACTED_URL/jira/rest/api/2/reindex?type=FOREGROUND"
+  echo ">>> Re-index triggered."
+else
+  echo ">>> Skipping step 3: App install + reindex trigger"
+fi
 
-  echo ">>> Re-index started. Polling reindex status every 60 seconds (max 2 hours)..."
-
-  MAX_RETRIES=120
-  RETRY_COUNT=0
+# ==========================================
+# 4. WAIT FOR JIRA (REINDEX RECOVERY) + SCREENSHOT
+# ==========================================
+if [ "$SKIP_TO" -le 4 ]; then
+  echo ">>> Waiting for Jira to come back online (reindex may take a while)..."
+  JIRA_WAIT=0
   while true; do
-    REINDEX_STATUS=$(curl -s -u "$ADMIN_USER:$ADMIN_PASS" "http://$EXTRACTED_URL/jira/rest/api/2/reindex" || true)
-    echo ">>> DEBUG reindex response: $REINDEX_STATUS"
-
-    # Parse both currentProgress and success fields
-    PROGRESS=$(echo "$REINDEX_STATUS" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('currentProgress', -1))" 2>/dev/null || echo "-1")
-    SUCCESS=$(echo "$REINDEX_STATUS" | python3 -c "import sys,json; d=json.load(sys.stdin); print(str(d.get('success', False)).lower())" 2>/dev/null || echo "false")
-
-    if [ "$PROGRESS" = "100" ] || [ "$SUCCESS" = "true" ]; then
-      echo ">>> Success! Jira Re-index is complete."
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://$EXTRACTED_URL/jira/status" || true)
+    if [ "$HTTP_CODE" = "200" ]; then
+      echo ">>> Jira is up (HTTP 200)."
       break
     fi
-
-    # If progress is -1 it may mean reindex finished or response format changed
-    # Check if there's no active task (empty or no currentProgress means done)
-    if [ "$PROGRESS" = "-1" ] && [ "$RETRY_COUNT" -gt 2 ]; then
-      echo ">>> Re-index appears complete (no active task found)."
-      break
-    fi
-
-    RETRY_COUNT=$((RETRY_COUNT + 1))
-    if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
-      echo "ERROR: Re-index did not complete within 2 hours. Exiting."
+    JIRA_WAIT=$((JIRA_WAIT + 1))
+    if [ "$JIRA_WAIT" -ge 120 ]; then
+      echo "ERROR: Jira not available after 2 hours. Exiting."
       exit 1
     fi
-    echo ">>> Still indexing... (progress: ${PROGRESS}%). Checking again in 60s. ($RETRY_COUNT/$MAX_RETRIES)"
+    echo ">>> Jira not ready (HTTP $HTTP_CODE). Checking again in 60s... ($JIRA_WAIT/120)"
     sleep 60
   done
 
@@ -304,13 +315,13 @@ EOF
   rm -rf "$PLAYWRIGHT_DIR"
   echo ">>> Screenshot saved successfully as 'lucene_reindex_screenshot.png'!"
 else
-  echo ">>> Skipping step 3: App install + reindex + screenshot"
+  echo ">>> Skipping step 4: Wait for Jira + screenshot"
 fi
 
 # ==========================================
-# 4. RUN 2: PASSIVE OVERHEAD TEST
+# 5. RUN 2: PASSIVE OVERHEAD TEST
 # ==========================================
-if [ "$SKIP_TO" -le 4 ]; then
+if [ "$SKIP_TO" -le 5 ]; then
   echo ">>> Starting Run 2: Passive Test (App installed, no custom actions)..."
   run_bzt
 
@@ -329,13 +340,13 @@ if [ "$SKIP_TO" -le 4 ]; then
     --entrypoint="python" \
     atlassian/dcapt csv_chart_generator.py performance_profile.yml
 else
-  echo ">>> Skipping step 4: Run 2 passive test + perf report"
+  echo ">>> Skipping step 5: Run 2 passive test + perf report"
 fi
 
 # ==========================================
-# 5. TEST DATA INJECTION + SYNC TESTS + RUN 3: SCALABILITY (1-NODE, ACTIVE)
+# 6. TEST DATA INJECTION + SYNC TESTS + RUN 3: SCALABILITY (1-NODE, ACTIVE)
 # ==========================================
-if [ "$SKIP_TO" -le 5 ]; then
+if [ "$SKIP_TO" -le 6 ]; then
   echo ">>> Injecting test data for Custom JQL..."
   curl -s -o /dev/null -u "$ADMIN_USER:$ADMIN_PASS" \
     -X POST -H "Content-Type: application/json" \
@@ -372,13 +383,13 @@ if [ "$SKIP_TO" -le 5 ]; then
 
   RUN3_DIR=$(get_latest_results)
 else
-  echo ">>> Skipping step 5: Test data + sync + Run 3"
+  echo ">>> Skipping step 6: Test data + sync + Run 3"
 fi
 
 # ==========================================
-# 6. RUN 4: SCALABILITY (2-NODE)
+# 7. RUN 4: SCALABILITY (2-NODE)
 # ==========================================
-if [ "$SKIP_TO" -le 6 ]; then
+if [ "$SKIP_TO" -le 7 ]; then
   echo ">>> Scaling cluster to 2 Nodes..."
   sedi "s/^jira_replica_count *= *.*/jira_replica_count = 2/" "$TFVARS_FILE"
 
@@ -395,13 +406,13 @@ if [ "$SKIP_TO" -le 6 ]; then
 
   RUN4_DIR=$(get_latest_results)
 else
-  echo ">>> Skipping step 6: Run 4 (2-node)"
+  echo ">>> Skipping step 7: Run 4 (2-node)"
 fi
 
 # ==========================================
-# 7. RUN 5: SCALABILITY (4-NODE)
+# 8. RUN 5: SCALABILITY (4-NODE)
 # ==========================================
-if [ "$SKIP_TO" -le 7 ]; then
+if [ "$SKIP_TO" -le 8 ]; then
   echo ">>> Scaling cluster to 4 Nodes..."
   sedi "s/^jira_replica_count *= *.*/jira_replica_count = 4/" "$TFVARS_FILE"
 
@@ -418,13 +429,13 @@ if [ "$SKIP_TO" -le 7 ]; then
 
   RUN5_DIR=$(get_latest_results)
 else
-  echo ">>> Skipping step 7: Run 5 (4-node)"
+  echo ">>> Skipping step 8: Run 5 (4-node)"
 fi
 
 # ==========================================
-# 8. GENERATE SCALABILITY REPORT
+# 9. GENERATE SCALABILITY REPORT
 # ==========================================
-if [ "$SKIP_TO" -le 8 ]; then
+if [ "$SKIP_TO" -le 9 ]; then
   echo ">>> Generating Scale Report..."
   # If RUN3/4/5 dirs are empty (skipped earlier), grab from existing results
   results_dirs=($(ls -td "$TOOLKIT_ROOT/app/results/jira"/*/ 2>/dev/null | head -3))
@@ -441,13 +452,13 @@ if [ "$SKIP_TO" -le 8 ]; then
     --entrypoint="python" \
     atlassian/dcapt csv_chart_generator.py scale_profile.yml
 else
-  echo ">>> Skipping step 8: Scale report"
+  echo ">>> Skipping step 9: Scale report"
 fi
 
 # ==========================================
-# 9. TERMINATE CLUSTER
+# 10. TERMINATE CLUSTER
 # ==========================================
-if [ "$SKIP_TO" -le 9 ]; then
+if [ "$SKIP_TO" -le 10 ]; then
   echo ">>> Terminating cluster (graceful uninstall)..."
   cd "$TOOLKIT_ROOT/app/util/k8s" || exit 1
 
